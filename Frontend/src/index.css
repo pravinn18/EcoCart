@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 5px; 
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent; 
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: #9ca3af; /* gray-400 */
+  }
+
+
+  .custom-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .custom-scrollbar:hover {
+    scrollbar-width: thin;
+    scrollbar-color: #9ca3af transparent;
+  }
+}
+
+.input {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+  width: 100%;
+}
+
