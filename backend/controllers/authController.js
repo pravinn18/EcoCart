@@ -69,8 +69,21 @@ export const registerUser = async (req, res) => {
       totalOrdersPlaced: 0,
       isPlusMember: false,
     });
+    const token = generateToken(user._id);
 
-    res.status(201).json(userResponse(user));
+    const isProduction = process.env.NODE_ENV === "production";
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    const response = userResponse(user);
+    delete response.token;
+
+    res.status(201).json(response);
   } catch (error) {
     console.error("Register error:", error);
 
@@ -115,7 +128,23 @@ export const loginUser = async (req, res) => {
       await user.save();
     }
 
-    res.status(200).json(userResponse(user));
+    const token = generateToken(user._id);
+
+    const isProduction = process.env.NODE_ENV === "production";
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    const response = userResponse(user);
+
+    // remove token from response
+    delete response.token;
+
+    res.status(200).json(response);
   } catch (error) {
     console.error("Login error:", error);
 
@@ -278,8 +307,21 @@ export const verifyOtpAndRegister = async (req, res) => {
       plusExpiryDate: null,
       lastStreakRewardDate: null,
     });
+    const token = generateToken(user._id);
 
-    res.status(201).json(userResponse(user));
+    const isProduction = process.env.NODE_ENV === "production";
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    const response = userResponse(user);
+    delete response.token;
+
+    res.status(201).json(response);
   } catch (error) {
     console.error("Verify OTP error:", error);
 
@@ -328,9 +370,9 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-   user.password = password;
+    user.password = password;
 
-   await user.save();
+    await user.save();
 
     await user.save();
 
@@ -397,4 +439,18 @@ export const sendForgotPasswordOtp = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+export const logoutUser = (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "None" : "Lax",
+  });
+
+  res.json({
+    message: "Logged out",
+  });
 };
