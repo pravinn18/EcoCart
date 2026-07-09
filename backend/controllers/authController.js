@@ -31,7 +31,7 @@ const otpStore = new Map();
 
 const createTransporter = () =>
   nodemailer.createTransport({
-    host: "smtp.gmail.com",
+    host: "smtp-relay.brevo.com",
     port: 587,
     secure: false,
     auth: {
@@ -39,7 +39,6 @@ const createTransporter = () =>
       pass: process.env.EMAIL_PASS,
     },
   });
-
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
