@@ -34,10 +34,15 @@ const createTransporter = () =>
     host: "smtp-relay.brevo.com",
     port: 587,
     secure: false,
+
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
+
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   });
 export const registerUser = async (req, res) => {
   try {
@@ -192,8 +197,12 @@ export const sendOtp = async (req, res) => {
 
     const transporter = createTransporter();
 
+    await transporter.verify();
+
+    console.log("SMTP Connected Successfully");
+
     await transporter.sendMail({
-      from: `"Ecocart" <${process.env.EMAIL_USER}>`,
+      from: '"Ecocart" <ecocartec@gmail.com>',
       to: emailKey || email,
       subject: "Your Ecocart Verification Code",
       html: `
@@ -418,7 +427,7 @@ export const sendForgotPasswordOtp = async (req, res) => {
     const transporter = createTransporter();
 
     await transporter.sendMail({
-      from: `"Ecocart" <${process.env.EMAIL_USER}>`,
+      from: '"Ecocart" <ecocartec@gmail.com>',
       to: emailKey,
       subject: "Ecocart Password Reset OTP",
       html: `
