@@ -155,12 +155,13 @@ export const loginUser = async (req, res) => {
     console.log("NODE_ENV:", process.env.NODE_ENV);
     console.log("Setting Cookie...");
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "None" : "Lax",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+res.cookie("token", token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "None",
+  path: "/",
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+});
 
     const response = userResponse(user);
     delete response.token;

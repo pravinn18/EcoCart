@@ -12,7 +12,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-
 const CheckoutPayment = () => {
   const navigate = useNavigate();
   const { cartItems, totalAmount, clearCart } = useCart();
@@ -21,21 +20,21 @@ const CheckoutPayment = () => {
   const [success, setSuccess] = useState(false);
 
   const address = JSON.parse(sessionStorage.getItem("checkoutAddress") || "{}");
-useEffect(() => {
-  if (success) return;
+  useEffect(() => {
+    if (success) return;
 
-  if (
-    !address.fullName ||
-    !address.phone ||
-    !address.addressLine1 ||
-    !address.city ||
-    !address.state ||
-    !address.pincode
-  ) {
-    alert("Please select a delivery address.");
-    navigate("/checkout/address", { replace: true });
-  }
-}, [address, navigate, success]);
+    if (
+      !address.fullName ||
+      !address.phone ||
+      !address.addressLine1 ||
+      !address.city ||
+      !address.state ||
+      !address.pincode
+    ) {
+      alert("Please select a delivery address.");
+      navigate("/checkout/address", { replace: true });
+    }
+  }, [address, navigate, success]);
 
   const buildOrderItems = () =>
     cartItems.map((item) => ({
@@ -93,12 +92,12 @@ useEffect(() => {
           config,
         );
         await clearCart();
-    setSuccess(true);
+        setSuccess(true);
 
-    setTimeout(() => {
-      sessionStorage.removeItem("checkoutAddress");
-      navigate("/orders", { replace: true });
-    }, 2500);
+        setTimeout(() => {
+          sessionStorage.removeItem("checkoutAddress");
+          navigate("/orders", { replace: true });
+        }, 2500);
         return;
       }
 
@@ -141,7 +140,7 @@ useEffect(() => {
             }
 
             await axios.post(
-              `$/api/orders`,
+              `/api/orders`,
               {
                 orderItems,
                 shippingAddress: address,

@@ -24,6 +24,7 @@ import {
   Layers,
   BadgePercent,
 } from "lucide-react";
+import { BASE_URL } from "../config/api";
 
 const STATUS_CONFIG = {
   pending: { bg: "bg-yellow-50", text: "text-yellow-600", label: "Pending" },
