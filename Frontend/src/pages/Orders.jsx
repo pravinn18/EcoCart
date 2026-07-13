@@ -11,7 +11,7 @@ import {
   FileText,
   RotateCcw,
 } from "lucide-react";
-import { BASE_URL } from "../config/api";
+
 
 
 const statusStyle = {
@@ -538,9 +538,7 @@ const Orders = () => {
                       >
                         <img
                           src={
-                            item.image?.startsWith("http")
-                              ? item.image
-                              : `${BASE_URL}${item.image}`
+                            item.image
                           }
                           alt={item.name}
                           className="object-contain h-full w-full group-hover:scale-110 transition-transform duration-200"

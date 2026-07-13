@@ -15,7 +15,7 @@ import {
   Phone,
   AlertTriangle,
 } from "lucide-react";
-import { BASE_URL } from "../config/api";
+
 
 
 const CancelCountdown = ({ createdAt }) => {
@@ -378,13 +378,7 @@ const OrderDetails = () => {
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl border border-gray-100 flex items-center justify-center p-1.5 shrink-0">
                       <img
-                        src={
-                          item.image
-                            ? item.image.startsWith("http")
-                              ? item.image
-                              : `${BASE_URL}${item.image}`
-                            : "/placeholder.png"
-                        }
+                        src={item.image}
                         alt={item.name}
                         className="object-contain h-full w-full"
                       />

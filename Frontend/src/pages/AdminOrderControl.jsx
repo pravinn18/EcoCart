@@ -24,7 +24,7 @@ import {
   Layers,
   BadgePercent,
 } from "lucide-react";
-import { BASE_URL } from "../config/api";
+
 
 const STATUS_CONFIG = {
   pending: { bg: "bg-yellow-50", text: "text-yellow-600", label: "Pending" },
@@ -158,18 +158,13 @@ const OfferAnalysisPanel = ({ orderItems }) => {
               key={i}
               className="bg-white border border-gray-100 rounded-xl overflow-hidden"
             >
-            
               <button
                 onClick={() => setExpandedItem(isExpanded ? null : i)}
                 className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50/70 transition text-left"
               >
                 <div className="w-7 h-7 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center p-1 shrink-0">
                   <img
-                    src={
-                      item.image?.startsWith("http")
-                        ? item.image
-                        : `${BASE_URL}${item.image}`
-                    }
+                    src={item.image}
                     alt={item.name}
                     className="object-contain h-full w-full"
                   />
@@ -207,10 +202,8 @@ const OfferAnalysisPanel = ({ orderItems }) => {
                 )}
               </button>
 
-            
               {offer && isExpanded && (
                 <div className="border-t border-gray-50 bg-gray-50/40 px-3 py-3 space-y-3">
-                
                   <div className="grid grid-cols-3 gap-2">
                     <div className="bg-white rounded-lg p-2 text-center border border-gray-100">
                       <p className="text-[8px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
@@ -238,7 +231,6 @@ const OfferAnalysisPanel = ({ orderItems }) => {
                     </div>
                   </div>
 
-               
                   {offer.discountStack?.length > 0 && (
                     <div>
                       <div className="flex items-center gap-1.5 mb-2">
@@ -272,7 +264,6 @@ const OfferAnalysisPanel = ({ orderItems }) => {
                     </div>
                   )}
 
-            
                   {offer.totalDiscountPercent != null && (
                     <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                       <div className="flex items-center gap-1.5">
@@ -330,7 +321,6 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
-  
       <div
         className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 sm:p-5 cursor-pointer hover:bg-gray-50/70 transition"
         onClick={() => setExpanded((p) => !p)}
@@ -387,7 +377,6 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
       {expanded && (
         <div className="border-t border-gray-100 bg-gray-50/40">
           <div className="p-4 sm:p-5 space-y-4">
-           
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-1.5 mb-1.5">
@@ -433,7 +422,6 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
               </div>
             </div>
 
-          
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
               <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 px-3 py-2 border-b border-gray-50">
                 Items ({order.orderItems?.length})
@@ -443,11 +431,7 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
                   <div key={i} className="flex items-center gap-3 px-3 py-2.5">
                     <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center p-1 shrink-0">
                       <img
-                        src={
-                          item.image?.startsWith("http")
-                            ? item.image
-                            : `${BASE_URL}${item.image}`
-                        }
+                        src={item.image}
                         alt={item.name}
                         className="object-contain h-full w-full"
                       />
@@ -468,7 +452,6 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
               </div>
             </div>
 
-         
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
               <button
                 onClick={() => setShowOfferAnalysis((p) => !p)}
@@ -482,7 +465,7 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
                     <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
                       Offer Analysis
                     </p>
-                   
+
                     {offerCount > 0 && (
                       <span className="text-[8px] font-bold text-[#C28E77] bg-[#FBF3EF] border border-[#F0E0D8] px-1.5 py-0.5 rounded-full">
                         {offerCount} item{offerCount !== 1 ? "s" : ""} w/ offers
