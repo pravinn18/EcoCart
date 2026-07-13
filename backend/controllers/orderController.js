@@ -3,7 +3,7 @@ import User from "../models/User.js";
 import Product from "../models/Product.js";
 import mongoose from "mongoose";
 
-// Inline schema — no new file needed
+
 const MonthlyReset =
   mongoose.models.MonthlyReset ||
   mongoose.model(
@@ -341,3 +341,5 @@ export const resetMonthlyData = async (req, res) => {
     });
   }
 };
+
+console.log("Controller create order");

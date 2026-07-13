@@ -102,13 +102,22 @@ export const registerUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
   try {
+    console.log("===== LOGIN REQUEST =====");
+    console.log("Request Body:", req.body);
+
     const { email, password } = req.body;
 
     const emailKey = email?.toLowerCase().trim();
+    console.log("Searching email:", emailKey);
+
+    
 
     const user = await User.findOne({ email: emailKey });
 
+    console.log("User Found:", user);
+
     if (!user) {
+      console.log("❌ USER NOT FOUND");
       return res.status(401).json({
         message: "Invalid email or password",
       });
@@ -118,11 +127,16 @@ export const loginUser = async (req, res) => {
       ? await user.matchPassword(password)
       : await bcrypt.compare(password, user.password);
 
+    console.log("Password Match:", isMatch);
+
     if (!isMatch) {
+      console.log("❌ PASSWORD INCORRECT");
       return res.status(401).json({
         message: "Invalid email or password",
       });
     }
+
+    console.log("✅ LOGIN SUCCESS");
 
     if (
       user.isPlusMember &&
@@ -138,6 +152,9 @@ export const loginUser = async (req, res) => {
 
     const isProduction = process.env.NODE_ENV === "production";
 
+    console.log("NODE_ENV:", process.env.NODE_ENV);
+    console.log("Setting Cookie...");
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: isProduction,
@@ -146,8 +163,6 @@ export const loginUser = async (req, res) => {
     });
 
     const response = userResponse(user);
-
-    // remove token from response
     delete response.token;
 
     res.status(200).json(response);
@@ -160,6 +175,9 @@ export const loginUser = async (req, res) => {
     });
   }
 };
+
+
+
 
 export const sendOtp = async (req, res) => {
   try {
@@ -185,7 +203,6 @@ export const sendOtp = async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // 2 minutes expiry
     const expiresAt = Date.now() + 2 * 60 * 1000;
 
     otpStore.set(emailKey, {
@@ -381,8 +398,6 @@ export const resetPassword = async (req, res) => {
     }
 
     user.password = password;
-
-    await user.save();
 
     await user.save();
 

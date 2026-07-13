@@ -61,25 +61,33 @@ const ProductDetails = () => {
   const [editError, setEditError] = useState("");
   const [editSuccess, setEditSuccess] = useState(false);
 
-  const userInfo = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("userInfo"));
-    } catch {
-      return null;
-    }
-  })();
+  const [userInfo, setUserInfo] = useState(null);
 
   const isAdmin = userInfo?.isAdmin || userInfo?.role === "admin";
 
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await axios.get(`/api/users/profile`, {
+          withCredentials: true,
+        });
+
+        setUserInfo(data);
+      } catch (err) {
+        console.error(err);
+        setUserInfo(null);
+      }
+    };
+    fetchUser();
+
     const fetchProduct = async () => {
       try {
         setLoading(true);
         setError("");
-        const { data } = await axios.get(`${BASE_URL}/api/products/${id}`);
+        const { data } = await axios.get(`$/api/products/${id}`);
         setProduct(data);
         if (Number(data.quantity || data.stock || 0) > 0) setQty(1);
-        const { data: all } = await axios.get(`${BASE_URL}/api/products`);
+        const { data: all } = await axios.get(`/api/products`);
         setSimilar(
           all
             .filter(
@@ -156,7 +164,6 @@ const ProductDetails = () => {
     setEditError("");
     setEditSuccess(false);
     try {
-      const token = userInfo?.token;
       const payload = {
         ...(editForm.name && { name: editForm.name }),
         ...(editForm.category && { category: editForm.category }),
@@ -167,11 +174,11 @@ const ProductDetails = () => {
         ...(editForm.mfgDate && { mfgDate: editForm.mfgDate }),
       };
       const { data } = await axios.put(
-        `${BASE_URL}/api/products/${id}/stock`,
+        `/api/products/${id}/stock`,
         payload,
         {
+          withCredentials: true,
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         },
@@ -220,7 +227,6 @@ const ProductDetails = () => {
   return (
     <div className="bg-[#F9F9F9] min-h-screen pt-20 sm:pt-24 lg:pt-28 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         <div className="flex items-center justify-between mb-6">
           <Link
             to="/"
@@ -239,7 +245,6 @@ const ProductDetails = () => {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8 mb-16 lg:mb-20">
-          
           <div className="w-full lg:w-1/2 relative">
             <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm p-6 sm:p-8 flex items-center justify-center min-h-[300px] sm:min-h-[400px] lg:min-h-[520px]">
               <img
@@ -269,7 +274,6 @@ const ProductDetails = () => {
           </div>
 
           <div className="w-full lg:w-1/2 flex flex-col justify-center space-y-5 sm:space-y-6">
-            
             <div className="flex items-center gap-2 flex-wrap">
               {product.category && (
                 <Link
@@ -286,12 +290,10 @@ const ProductDetails = () => {
               )}
             </div>
 
-           
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#1A302B] leading-tight tracking-tight">
               {product.name}
             </h1>
 
-           
             <div className="flex items-end gap-3 flex-wrap">
               <span className="text-3xl sm:text-4xl font-bold text-[#1A302B]">
                 ₹{finalPrice.toLocaleString("en-IN")}
@@ -308,7 +310,6 @@ const ProductDetails = () => {
               )}
             </div>
 
-         
             {product.description && (
               <div className="border-t border-gray-100 pt-5">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">

@@ -6,7 +6,6 @@ import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-// ROUTES
 import adRoutes from "./routes/adRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -19,13 +18,12 @@ import uploadRoutes from "./routes/uploadRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import lifestyleRoutes from "./routes/lifestyleRoutes.js";
 
-
 const app = express();
 
-// ── MIDDLEWARE ─────────────────────────────────────────────
-
-// ✅ CORS
-const allowedOrigins = ["http://localhost:5173", process.env.FRONTEND_URL];
+const allowedOrigins = [
+  "http://localhost:5173", 
+  process.env.FRONTEND_URL, 
+].filter(Boolean);
 
 console.log("Allowed Origins:", allowedOrigins);
 
@@ -50,18 +48,15 @@ app.use(
   }),
 );
 
-// ✅ IMPORTANT: BODY PARSER
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use("/api/payment", paymentRoutes);
-// ✅ COOKIE PARSER
 
-// ── STATIC FILES ──────────────────────────────────────────
+
 app.use("/uploads", express.static("uploads"));
 
-// ── API ROUTES ────────────────────────────────────────────
 app.use("/api/ads", adRoutes);
 
 app.use("/api/categories", categoryRoutes);
@@ -86,19 +81,19 @@ app.use("/api/users", userRoutes);
 
 app.use("/api/upload", uploadRoutes);
 
-// ── DATABASE ──────────────────────────────────────────────
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("MongoDB Connected");
+    console.log("✅ MongoDB Connected");
+    console.log("Database:", mongoose.connection.name);
+
+    const PORT = process.env.PORT || 5000;
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   })
   .catch((err) => {
-    console.log("Mongo Error:", err);
+    console.error("Mongo Error:", err);
   });
-
-// ── SERVER ────────────────────────────────────────────────
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});

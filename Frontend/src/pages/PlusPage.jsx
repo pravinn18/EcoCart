@@ -16,7 +16,6 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const MAX_CYCLES = 4;
 
 const PlusPage = () => {
@@ -27,17 +26,6 @@ const PlusPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [activateMsg, setActivateMsg] = useState("");
 
-  const token = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("userInfo"))?.token;
-    } catch {
-      return null;
-    }
-  })();
-
-  // Reset any body/html styles that the old dark-theme PlusPage may have
-  // injected via a <style> tag — they persist across client-side navigation
-  // until a hard reload unless we explicitly undo them here.
   useEffect(() => {
     const prev = {
       bg: document.body.style.background,
@@ -63,22 +51,18 @@ const PlusPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-    fetchUser();
-    const interval = setInterval(() => fetchUser(), 10000);
-    return () => clearInterval(interval);
-  }, []);
+ useEffect(() => {
+   fetchUser();
+
+   const interval = setInterval(() => fetchUser(), 10000);
+
+   return () => clearInterval(interval);
+ }, []);
 
   const fetchUser = async (showRefresh = false) => {
     try {
       if (showRefresh) setRefreshing(true);
-      const { data } = await axios.get(`/api/users/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const { data } = await axios.get("/api/users/profile");
       setUserData(data);
       const stored = JSON.parse(localStorage.getItem("userInfo") || "{}");
       localStorage.setItem(
@@ -95,6 +79,10 @@ const PlusPage = () => {
       );
     } catch (err) {
       console.error("Fetch user error:", err);
+
+      if (err.response?.status === 401) {
+        navigate("/login");
+      }
     } finally {
       setLoaded(true);
       setRefreshing(false);
@@ -105,13 +93,7 @@ const PlusPage = () => {
     try {
       setProcessing(true);
       setActivateMsg("");
-      await axios.post(
-        `/api/users/activate-plus`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+     await axios.post("/api/users/activate-plus");
       setActivateMsg("🎉 Plus activated! Welcome to EcoCart Plus.");
       await fetchUser();
     } catch (err) {
@@ -188,7 +170,7 @@ const PlusPage = () => {
   return (
     <div className="bg-[#F9F9F9] min-h-screen pt-24 sm:pt-28 pb-16">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
-        {/* Back + Refresh row */}
+     
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => navigate(-1)}
@@ -206,7 +188,6 @@ const PlusPage = () => {
           </button>
         </div>
 
-        {/* Page header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-4 py-1.5 mb-4">
             <Crown size={13} className="text-amber-500 fill-amber-500" />
@@ -224,11 +205,10 @@ const PlusPage = () => {
           </p>
         </div>
 
-        {/* ── STATS CARD ── */}
         <div
           className={`bg-white rounded-2xl border ${isPlus ? "border-amber-200" : "border-gray-100"} shadow-sm p-6 mb-4`}
         >
-          {/* Points + expiry */}
+        
           <div className="flex justify-between items-start mb-5 flex-wrap gap-3">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
@@ -256,7 +236,7 @@ const PlusPage = () => {
             )}
           </div>
 
-          {/* Streak row */}
+     
           <div className="bg-[#F9F9F9] border border-gray-100 rounded-xl p-3.5 flex items-center gap-3 mb-5 flex-wrap">
             <Flame
               size={18}
@@ -275,7 +255,7 @@ const PlusPage = () => {
             </span>
           </div>
 
-          {/* Progress bar + dots */}
+          
           {!isPlus && (
             <>
               <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
@@ -309,7 +289,6 @@ const PlusPage = () => {
             </>
           )}
 
-          {/* CTA */}
           {!isPlus && (
             <div className="mt-4">
               {eligible ? (
@@ -349,7 +328,6 @@ const PlusPage = () => {
             </div>
           )}
 
-          {/* Active badge */}
           {isPlus && (
             <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 mt-2">
               <Check size={14} className="text-amber-500" />
@@ -360,7 +338,6 @@ const PlusPage = () => {
           )}
         </div>
 
-        {/* ── HOW TO EARN (non-plus only) ── */}
         {!isPlus && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
             <div className="flex items-center gap-2 mb-5">
@@ -388,7 +365,6 @@ const PlusPage = () => {
           </div>
         )}
 
-        {/* ── BENEFITS GRID ── */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Star size={14} className="text-amber-500 fill-amber-500" />
@@ -432,7 +408,6 @@ const PlusPage = () => {
           </div>
         </div>
 
-        {/* Footer note */}
         <p className="text-center text-xs text-gray-300 leading-relaxed">
           Plus is earned through loyalty — not purchased.
           <br />

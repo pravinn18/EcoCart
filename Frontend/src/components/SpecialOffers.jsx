@@ -3,7 +3,7 @@ import axios from "../config/axios";
 import { Plus, Camera, Link as LinkIcon, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 
 const SpecialOffers = () => {
   const [offers, setOffers] = useState([]);
@@ -18,7 +18,7 @@ const SpecialOffers = () => {
 
   const fetchOffers = async () => {
     try {
-      const { data } = await axios.get(`${BASE_URL}/api/offers`);
+      const { data } = await axios.get(`/api/offers`);
       setOffers(data.length ? data : []);
     } catch (error) {
       console.error("Fetch failed");
@@ -58,7 +58,7 @@ const SpecialOffers = () => {
     formData.append("image", file);
 
     try {
-      await axios.post(`${BASE_URL}/api/offers`, formData, {
+      await axios.post(`/api/offers`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -76,7 +76,7 @@ const SpecialOffers = () => {
     if (!window.confirm("Are you sure you want to delete this offer?")) return;
 
     try {
-      await axios.delete(`${BASE_URL}/api/offers/${id}`);
+      await axios.delete(`/api/offers/${id}`);
       fetchOffers();
     } catch {
       alert("Could not delete offer.");
@@ -93,7 +93,7 @@ const SpecialOffers = () => {
 
     try {
       await axios.put(
-        `${BASE_URL}/api/offers/${id}`,
+        `/api/offers/${id}`,
         { link: url },
         { headers: { "Content-Type": "application/json" } },
       );
@@ -114,7 +114,7 @@ const SpecialOffers = () => {
 
     try {
       await axios.put(
-        `${BASE_URL}/api/offers/image/${activeOfferId}`,
+        `/api/offers/image/${activeOfferId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

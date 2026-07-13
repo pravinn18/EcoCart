@@ -25,8 +25,6 @@ import {
   BadgePercent,
 } from "lucide-react";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
 const STATUS_CONFIG = {
   pending: { bg: "bg-yellow-50", text: "text-yellow-600", label: "Pending" },
   paid: { bg: "bg-green-50", text: "text-green-700", label: "Paid" },
@@ -643,23 +641,12 @@ const AdminOrderControl = () => {
   const [filter, setFilter] = useState("all");
   const [invoiceLoadingId, setInvoiceLoadingId] = useState(null);
 
-  const getToken = () => {
-    try {
-      return JSON.parse(localStorage.getItem("userInfo"))?.token;
-    } catch {
-      return null;
-    }
-  };
-
   const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
       const { data } = await axios.get(
-        `${BASE_URL}/api/orders/admin/allorders`,
-        {
-          headers: { Authorization: `Bearer ${getToken()}` },
-        },
+        `/api/orders/admin/allorders`,
       );
       const sorted = [...data].sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
@@ -679,31 +666,28 @@ const AdminOrderControl = () => {
   const handleAction = useCallback(
     async (orderId, actionType, payload = {}) => {
       try {
-        const token = getToken();
+      
 
         if (actionType === "deliver") {
-          await axios.put(
-            `${BASE_URL}/api/orders/${orderId}/deliver`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } },
-          );
+        await axios.put(
+          `/api/orders/${orderId}/deliver`,
+          {},
+        );
         } else if (actionType === "status") {
-          await axios.put(`${BASE_URL}/api/orders/${orderId}/status`, payload, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+         await axios.put(
+           `/api/orders/${orderId}/status`,
+           payload,
+         );
         } else if (actionType === "cancel") {
-          await axios.put(
-            `${BASE_URL}/api/orders/${orderId}/cancel`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } },
-          );
+         await axios.put(
+           `/api/orders/${orderId}/cancel`,
+           {},
+         );
         } else if (actionType === "refund") {
-          await axios.put(
-            `${BASE_URL}/api/orders/${orderId}/refund`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } },
-          );
-        }
+         await axios.put(
+           `/api/orders/${orderId}/refund`,
+           {},
+         ); }
 
         await fetchOrders();
       } catch (err) {

@@ -3,7 +3,7 @@ import axios from "../config/axios";
 import { Link } from "react-router-dom";
 import { Plus, X, ChevronLeft, ChevronRight } from "lucide-react";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 
 const CategorySection = () => {
   const [categories, setCategories] = useState([]);
@@ -14,7 +14,7 @@ const CategorySection = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data } = await axios.get(`${BASE_URL}/api/categories`);
+      const { data } = await axios.get(`/api/categories`);
       if (data && data.length > 0) setCategories(data);
       else setCategories([]);
     } catch (error) {
@@ -54,7 +54,7 @@ const CategorySection = () => {
     formData.append("image", file);
 
     try {
-      await axios.post(`${BASE_URL}/api/categories`, formData);
+      await axios.post(`/api/categories`, formData);
       fetchCategories();
     } catch (error) {
       console.error("Upload error:", error);
@@ -68,7 +68,7 @@ const CategorySection = () => {
     if (!window.confirm("Delete this category?")) return;
 
     try {
-      await axios.delete(`${BASE_URL}/api/categories/${id}`);
+      await axios.delete(`/api/categories/${id}`);
       fetchCategories();
     } catch (error) {
       console.error("Delete error:", error);

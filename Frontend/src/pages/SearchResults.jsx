@@ -4,7 +4,6 @@ import axios from "../config/axios";
 import { Loader2, SearchX, ChevronDown } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const getInitialFilters = () => {
   try {
@@ -14,7 +13,6 @@ const getInitialFilters = () => {
   }
 };
 
-// Accordion section — isolated state so toggling one doesn't rerender siblings
 const FilterSection = ({ title, children, defaultOpen = false }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -59,8 +57,8 @@ const SearchResults = () => {
 
   const savedFilters = getInitialFilters();
 
-  const [allResults, setAllResults] = useState([]); // base pool from API (no client filters)
-  const [results, setResults] = useState([]); // filtered + sorted view
+  const [allResults, setAllResults] = useState([]); 
+  const [results, setResults] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -74,10 +72,8 @@ const SearchResults = () => {
     savedFilters.priceRanges || [],
   );
 
-  // Dynamic brands derived from search-pool — reflect the actual query context
   const [availableBrands, setAvailableBrands] = useState([]);
 
-  // Step 1: fetch base pool whenever query changes (no client filters sent)
   useEffect(() => {
     if (!query.trim()) {
       setAllResults([]);
@@ -89,9 +85,12 @@ const SearchResults = () => {
     setLoading(true);
     const fetchBase = async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/api/products/search`, {
-          params: { q: query },
-        });
+        const { data } = await axios.get(
+          `/api/products/search`,
+          {
+            params: { q: query },
+          },
+        );
         setAllResults(data);
         const unique = [
           ...new Set(data.map((p) => p.brand).filter(Boolean)),
@@ -108,19 +107,15 @@ const SearchResults = () => {
     window.scrollTo(0, 0);
   }, [query]);
 
-  // Step 2: apply all client-side filters whenever pool or filters change
-  // This avoids a full API round-trip per checkbox tick = no rerender flicker
   useEffect(() => {
     let filtered = [...allResults];
 
-    // Brand
     if (brands.length > 0) {
       filtered = filtered.filter((p) =>
         brands.some((b) => p.brand?.toLowerCase() === b.toLowerCase()),
       );
     }
 
-    // Availability — OR logic: keep if matches ANY selected
     if (availability.length > 0) {
       filtered = filtered.filter((p) => {
         if (availability.includes("instock") && p.stock > 10) return true;
@@ -131,7 +126,6 @@ const SearchResults = () => {
       });
     }
 
-    // Discount — keep if meets ANY selected minimum
     if (discounts.length > 0) {
       filtered = filtered.filter((p) => {
         const pct =
@@ -140,7 +134,6 @@ const SearchResults = () => {
       });
     }
 
-    // Price range — keep if falls in ANY selected range
     if (priceRanges.length > 0) {
       filtered = filtered.filter((p) => {
         const price = p.discountPrice ?? p.price;
@@ -152,7 +145,6 @@ const SearchResults = () => {
       });
     }
 
-    // Sort
     if (sort === "low-high") {
       filtered.sort(
         (a, b) => (a.discountPrice ?? a.price) - (b.discountPrice ?? b.price),
@@ -168,7 +160,6 @@ const SearchResults = () => {
     setResults(filtered);
   }, [allResults, brands, availability, discounts, priceRanges, sort]);
 
-  // Persist filters
   useEffect(() => {
     localStorage.setItem(
       "searchFilters",
@@ -238,7 +229,6 @@ const SearchResults = () => {
           </div>
         </div>
 
-        {/* FILTER DRAWER */}
         {showFilters && (
           <>
             <div
@@ -247,7 +237,7 @@ const SearchResults = () => {
             />
 
             <div className="fixed top-20 right-0 h-[calc(100vh-80px)] w-80 bg-white z-[100] flex flex-col shadow-xl">
-              {/* Drawer header */}
+         
               <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
                 <h2 className="text-base font-bold text-[#1A302B]">Filters</h2>
                 <button
@@ -258,9 +248,9 @@ const SearchResults = () => {
                 </button>
               </div>
 
-              {/* Scrollable body */}
+             
               <div className="flex-1 overflow-y-auto px-5 py-1">
-                {/* SORT */}
+                
                 <FilterSection title="Sort By" defaultOpen>
                   <select
                     value={sort}
@@ -274,7 +264,6 @@ const SearchResults = () => {
                   </select>
                 </FilterSection>
 
-                {/* BRAND — only shown when brands exist for this search */}
                 {availableBrands.length > 0 && (
                   <FilterSection
                     title={`Brand${brands.length > 0 ? ` (${brands.length})` : ""}`}
@@ -300,7 +289,7 @@ const SearchResults = () => {
                   </FilterSection>
                 )}
 
-                {/* PRICE */}
+             
                 <FilterSection
                   title={`Price${priceRanges.length > 0 ? ` (${priceRanges.length})` : ""}`}
                 >
@@ -326,7 +315,7 @@ const SearchResults = () => {
                   </div>
                 </FilterSection>
 
-                {/* AVAILABILITY */}
+         
                 <FilterSection
                   title={`Availability${availability.length > 0 ? ` (${availability.length})` : ""}`}
                 >
@@ -352,7 +341,7 @@ const SearchResults = () => {
                   </div>
                 </FilterSection>
 
-                {/* DISCOUNT */}
+           
                 <FilterSection
                   title={`Discount${discounts.length > 0 ? ` (${discounts.length})` : ""}`}
                 >
@@ -377,7 +366,7 @@ const SearchResults = () => {
                 </FilterSection>
               </div>
 
-              {/* Sticky footer */}
+            
               <div className="px-5 py-4 border-t border-gray-100 flex gap-3">
                 <button
                   onClick={handleClearAll}
@@ -395,9 +384,8 @@ const SearchResults = () => {
             </div>
           </>
         )}
-        {/* FILTER DRAWER END */}
+    
 
-        {/* RESULTS */}
         {results.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-5">
             <div className="bg-gray-50 p-8 rounded-full">

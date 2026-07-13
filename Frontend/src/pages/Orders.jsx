@@ -12,7 +12,6 @@ import {
   RotateCcw,
 } from "lucide-react";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const statusStyle = {
   pending: { bg: "bg-yellow-50", text: "text-yellow-600" },
@@ -51,12 +50,19 @@ const CancelCountdown = ({ createdAt }) => {
   );
 };
 
-const generateInvoice = async (order, userInfo) => {
- 
+const generateInvoice = async (order) => {
+  const userInfo = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("userInfo"));
+    } catch {
+      return null;
+    }
+  })();
+
   const { default: jsPDF } = await import("jspdf");
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const pw = 210; 
+  const pw = 210;
   const margin = 18;
   let y = 0;
 
@@ -143,7 +149,6 @@ const generateInvoice = async (order, userInfo) => {
 
   const colW = (pw - margin * 2 - 6) / 2;
 
-  
   doc.setFillColor(255, 255, 255);
   doc.setDrawColor(230, 230, 230);
   doc.roundedRect(margin, y, colW, 38, 3, 3, "FD");
@@ -162,7 +167,6 @@ const generateInvoice = async (order, userInfo) => {
   if (billEmail)
     text(billEmail, margin + 5, y + 23, { size: 8, color: [100, 100, 100] });
 
- 
   const addr = order.shippingAddress;
   const rx = margin + colW + 6;
   doc.roundedRect(rx, y, colW, 38, 3, 3, "FD");
@@ -189,7 +193,6 @@ const generateInvoice = async (order, userInfo) => {
 
   y += 46;
 
-  
   doc.setFillColor(26, 48, 43);
   doc.roundedRect(margin, y, pw - margin * 2, 10, 2, 2, "F");
   text("ITEM", margin + 5, y + 7, {
@@ -217,7 +220,6 @@ const generateInvoice = async (order, userInfo) => {
   });
 
   y += 13;
-
 
   order.orderItems.forEach((item, idx) => {
     const rowH = 10;
@@ -333,7 +335,6 @@ const generateInvoice = async (order, userInfo) => {
     },
   );
 
-
   doc.setFillColor(194, 142, 119);
   doc.rect(0, 295, pw, 2, "F");
 
@@ -347,31 +348,21 @@ const Orders = () => {
   const [cancelling, setCancelling] = useState(null);
   const [generatingInvoice, setGeneratingInvoice] = useState(null);
 
-  const userInfo = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("userInfo"));
-    } catch {
-      return null;
-    }
-  })();
+  
 
-  const getToken = () => userInfo?.token || null;
+ const fetchOrders = useCallback(async () => {
+   try {
+     const { data } = await axios.get(
+       `/api/orders/myorders`,
+     );
 
-  const fetchOrders = useCallback(async () => {
-    try {
-      const token = getToken();
-      if (!token) return;
-      const { data } = await axios.get(`${BASE_URL}/api/orders/myorders`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setOrders(data);
-    } catch (err) {
-      console.error("Fetch orders error:", err.response?.data || err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
+     setOrders(data);
+   } catch (err) {
+     console.error(err);
+   } finally {
+     setLoading(false);
+   }
+ }, []);
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
@@ -386,11 +377,7 @@ const Orders = () => {
     if (!window.confirm("Cancel this order? This cannot be undone.")) return;
     setCancelling(orderId);
     try {
-      await axios.put(
-        `${BASE_URL}/api/orders/${orderId}/cancel`,
-        {},
-        { headers: { Authorization: `Bearer ${getToken()}` } },
-      );
+     await axios.put(`/api/orders/${orderId}/cancel`);
       setOrders((prev) =>
         prev.map((o) =>
           o._id === orderId
@@ -411,7 +398,7 @@ const Orders = () => {
   const handleInvoice = async (order) => {
     setGeneratingInvoice(order._id);
     try {
-      await generateInvoice(order, userInfo);
+   await generateInvoice(order);
     } catch (err) {
       console.error("Invoice error:", err);
       alert("Could not generate invoice. Please try again.");

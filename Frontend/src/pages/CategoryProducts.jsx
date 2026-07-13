@@ -4,8 +4,6 @@ import axios from "../config/axios";
 import { ChevronLeft, Loader2, PackageOpen } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
 const CategoryProducts = () => {
   const { categoryName } = useParams();
   const [products, setProducts] = useState([]);
@@ -15,7 +13,7 @@ const CategoryProducts = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(`${BASE_URL}/api/products`);
+        const { data } = await axios.get(`/api/products`);
         const filtered = data.filter(
           (p) => p.category?.toLowerCase() === categoryName?.toLowerCase(),
         );

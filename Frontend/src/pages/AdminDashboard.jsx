@@ -19,7 +19,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 
 const StatCard = ({ title, value, icon: Icon, accent, gradient }) => (
   <div className="bg-white rounded-3xl shadow-md p-5 sm:p-6 relative overflow-hidden group hover:shadow-xl transition-all">
@@ -83,13 +83,6 @@ const AdminDashboard = () => {
 
       const userInfo = getUserInfo();
 
-    
-      if (!userInfo?.token) {
-        setError("Please login as admin");
-        setLoading(false);
-        return;
-      }
-
  
       if (!userInfo?.isAdmin) {
         setError("Admin access denied");
@@ -98,15 +91,7 @@ const AdminDashboard = () => {
       }
 
  
-      const { data } = await axios.get(
-        `${BASE_URL}/api/orders/admin/dashboard`,
-        {
-          headers: {
-            Authorization: `Bearer ${userInfo.token}`,
-          },
-        },
-      );
-
+    const { data } = await axios.get("/api/orders/admin/dashboard");
       setData(data);
     } catch (err) {
       console.log("Dashboard Error:", err.response?.data || err.message);
@@ -308,15 +293,7 @@ const AdminDashboard = () => {
     try {
       const userInfo = getUserInfo();
 
-      await axios.put(
-        `${BASE_URL}/api/orders/reset-monthly-data`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${userInfo.token}`,
-          },
-        },
-      );
+    await axios.put("/api/orders/reset-monthly-data", {});
 
       alert("Monthly stats reset successfully ✅");
 

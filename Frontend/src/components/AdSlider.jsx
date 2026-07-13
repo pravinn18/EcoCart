@@ -3,7 +3,7 @@ import axios from "../config/axios";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Plus, Trash2, Zap } from "lucide-react";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 
 const AdSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -15,7 +15,7 @@ const AdSlider = () => {
 
   const fetchSlides = async () => {
     try {
-      const { data } = await axios.get(`${BASE_URL}/api/ads`);
+      const { data } = await axios.get(`/api/ads`);
       if (data && data.length > 0) {
         setSlides(data);
       }
@@ -82,7 +82,7 @@ const AdSlider = () => {
     formData.append("link", link);
 
     try {
-      await axios.post(`${BASE_URL}/api/ads`, formData);
+      await axios.post(`/api/ads`, formData);
       fetchSlides();
       alert("Banner added successfully!");
     } catch (error) {
@@ -96,7 +96,7 @@ const AdSlider = () => {
   const deleteSlide = async (id) => {
     if (!window.confirm("Are you sure you want to delete this banner?")) return;
     try {
-      await axios.delete(`${BASE_URL}/api/ads/${id}`);
+      await axios.delete(`/api/ads/${id}`);
       setCurrentIndex(0);
       fetchSlides();
     } catch (error) {

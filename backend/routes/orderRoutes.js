@@ -7,7 +7,6 @@ import { protect, admin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-
 const MonthlyReset =
   mongoose.models.MonthlyReset ||
   mongoose.model(
@@ -72,7 +71,6 @@ const buildOfferBreakdown = (product, user, paidPrice) => {
   const finalPrice = Math.round(price * (1 - totalDiscountPercent / 100));
   const saved = mrp - finalPrice;
 
-  // offerType
   let offerType = "STANDARD OFFER";
   if (product.expiryDate) {
     const d = Math.ceil(
@@ -139,8 +137,11 @@ router.post("/", protect, async (req, res) => {
           : typeof product.stock === "number"
             ? product.stock
             : 0;
-
       product.isOutOfStock = updatedStock <= 0;
+
+      
+      product.salesCount = (product.salesCount || 0) + item.qty;
+
       await product.save();
     }
     const formattedOrderItems = await Promise.all(
@@ -421,6 +422,7 @@ router.put("/:id/cancel", protect, async (req, res) => {
       if (product) {
         if (typeof product.quantity === "number") product.quantity += item.qty;
         if (typeof product.stock === "number") product.stock += item.qty;
+        product.salesCount = Math.max(0, (product.salesCount || 0) - item.qty);
         product.isOutOfStock = false;
         await product.save();
       }
@@ -470,5 +472,7 @@ router.get("/:id", protect, async (req, res) => {
     res.status(500).json({ message: "Failed to fetch order" });
   }
 });
+
+console.log("Route create order");
 
 export default router;

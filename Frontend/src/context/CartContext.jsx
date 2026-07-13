@@ -4,19 +4,12 @@ import { computeOffer, getNewUserOfferItemId } from "../utils/offerUtils";
 
 const CartContext = createContext();
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const getToken = () => {
-    try {
-      return JSON.parse(localStorage.getItem("userInfo"))?.token;
-    } catch {
-      return null;
-    }
-  };
+
 
   const getUserInfo = () => {
     try {
@@ -28,14 +21,8 @@ export const CartProvider = ({ children }) => {
 
   const fetchCart = async () => {
     try {
-      const token = getToken();
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-      const { data } = await axios.get(`${BASE_URL}/api/cart`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const { data } = await axios.get("/api/cart");
+
       setCartItems(data || []);
     } catch (error) {
       console.log("FETCH CART ERROR:", error.response?.data || error.message);
@@ -45,23 +32,20 @@ export const CartProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchCart();
+    const user = getUserInfo();
+
+    if (user) {
+      fetchCart();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const saveCartToDatabase = async (updatedCart) => {
     try {
-      const token = getToken();
-      if (!token) return;
-      await axios.post(
-        `${BASE_URL}/api/cart/save`,
-        { items: updatedCart },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
+      await axios.post("/api/cart/save", {
+        items: updatedCart,
+      });
     } catch (error) {
       console.log("SAVE CART ERROR:", error.response?.data || error.message);
     }

@@ -6,7 +6,6 @@ import axios from "../config/axios";
 
 import ProductCard from "../components/ProductCard";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function () {
   const { name } = useParams();
@@ -15,7 +14,7 @@ export default function () {
 
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/api/products/lifestyle/${name}`)
+      .get(`/api/products/lifestyle/${name}`)
 
       .then((res) => {
         setProducts(res.data);

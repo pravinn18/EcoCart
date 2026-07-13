@@ -149,7 +149,7 @@ const ProductCard = ({ product }) => {
             src={
               product.image?.startsWith("http")
                 ? product.image
-                : `${BASE_URL}${product.image}`
+                : `{product.image}`
             }
             alt={product.name}
             className={`h-full w-full object-contain transition-transform duration-700 group-hover:scale-105 ${

@@ -51,7 +51,7 @@ const Header = () => {
       }
       try {
         const res = await fetch(
-          `${BASE_URL}/api/products/search?q=${encodeURIComponent(search.trim())}`,
+          `/api/products/search?q=${encodeURIComponent(search.trim())}`,
         );
         const data = await res.json();
         setSuggestions(data);
@@ -88,7 +88,7 @@ const Header = () => {
   return (
     <>
       <header className="fixed top-0 left-0 w-full z-[9999] bg-white text-gray-800 border-b border-gray-200 px-8 py-5 font-sans shadow-sm tracking-wide">
-        {/* ── DESKTOP ── */}
+        
         <div className="hidden sm:flex items-center justify-between">
           <div className="flex items-center gap-12">
             <Link to="/">
@@ -129,7 +129,6 @@ const Header = () => {
             </nav>
           </div>
 
-          {/* Search */}
           <div
             className="flex-1 flex justify-center px-6 relative"
             ref={searchRef}
@@ -199,9 +198,8 @@ const Header = () => {
             </div>
           </div>
 
-          {/* Icons */}
           <div className="flex items-center gap-7 text-lg relative text-gray-600">
-            {/* Wishlist */}
+           
             <Link
               to="/wishlist"
               className="relative hover:text-[#b87e5b] transition-colors duration-300"
@@ -214,7 +212,6 @@ const Header = () => {
               )}
             </Link>
 
-            {/* Cart */}
             <Link to="/cart" className="relative group">
               <FaShoppingCart className="cursor-pointer group-hover:text-[#b87e5b] transition-colors duration-300" />
               {itemCount > 0 && (
@@ -224,7 +221,6 @@ const Header = () => {
               )}
             </Link>
 
-            {/* ── SLIMMED USER MENU ── */}
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -237,7 +233,7 @@ const Header = () => {
                 <div className="absolute top-12 right-0 w-52 bg-white border border-gray-100 shadow-xl py-2 z-50 rounded-2xl">
                   {userInfo ? (
                     <div className="flex flex-col">
-                      {/* Name chip */}
+                      
                       <div className="px-5 py-3 border-b border-gray-50">
                         <span className="text-[11px] font-bold text-[#1A302B] uppercase tracking-widest block truncate">
                           {userInfo.name}
@@ -247,7 +243,6 @@ const Header = () => {
                         </span>
                       </div>
 
-                      {/* Profile */}
                       <Link
                         to="/profile"
                         onClick={() => setIsMenuOpen(false)}
@@ -257,7 +252,6 @@ const Header = () => {
                         Profile
                       </Link>
 
-                      {/* Logout */}
                       <button
                         onClick={logoutHandler}
                         className="text-left w-full px-5 py-3.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-red-500 transition-all flex items-center gap-2.5 border-t border-gray-50"
@@ -290,7 +284,6 @@ const Header = () => {
           </div>
         </div>
 
-        {/* ── MOBILE ── */}
         <div className="flex sm:hidden items-center justify-between">
           <Link to="/">
             <img
@@ -353,7 +346,6 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {isMobileMenuOpen && (
           <div className="sm:hidden bg-white border-t border-gray-100 shadow-lg">
             <div className="px-4 py-4 space-y-1">

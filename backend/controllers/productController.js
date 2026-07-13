@@ -185,7 +185,6 @@ export const searchProducts = async (req, res) => {
     };
   }
 
-    // Text search
     if (q?.trim()) {
       filter.$or = [
         { name: { $regex: q, $options: "i" } },
@@ -193,7 +192,6 @@ export const searchProducts = async (req, res) => {
       ];
     }
 
-    // Brand filter — supports single or multiple comma-separated brands
     if (brands?.trim()) {
       const brandList = brands
         .split(",")
@@ -209,7 +207,6 @@ export const searchProducts = async (req, res) => {
       }
     }
 
-    // Availability filter
     if (availability === "instock") {
       filter.stock = { $gt: 10 };
     } else if (availability === "lowstock") {
@@ -220,7 +217,6 @@ export const searchProducts = async (req, res) => {
 
     let products = await Product.find(filter);
 
-    // Discount filter (derived value, done in JS)
     if (discount) {
       const minDiscount = Number(discount);
       products = products.filter((p) => {
@@ -230,7 +226,6 @@ export const searchProducts = async (req, res) => {
       });
     }
 
-    // Sorting
     if (sort === "low-high") {
       products.sort((a, b) => a.discountPrice - b.discountPrice);
     } else if (sort === "high-low") {

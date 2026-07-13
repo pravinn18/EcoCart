@@ -16,7 +16,6 @@ import axios from "../config/axios";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -32,18 +31,30 @@ const Profile = () => {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const user = JSON.parse(localStorage.getItem("userInfo"));
-      if (!user) {
-        navigate("/login");
-        return;
-      }
-      setUserInfo(user);
-      setName(user.name || "");
+    const user = JSON.parse(localStorage.getItem("userInfo"));
 
-      const { data } = await axios.get(`${BASE_URL}/api/orders/myorders`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      setOrders(data);
+    const { data: profile } = await axios.get(
+      `/api/users/profile`,
+      {
+        withCredentials: true,
+      },
+    );
+
+    setUserInfo(profile);
+    setName(profile.name || "");
+
+    // keep localStorage updated for offers, plus membership, etc.
+    localStorage.setItem("userInfo", JSON.stringify(profile));
+
+    const { data } = await axios.get(
+      `/api/orders/myorders`,
+      {
+        withCredentials: true,
+      },
+    );
+
+    setOrders(data);
+    
     } catch (err) {
       console.error("Fetch orders error:", err);
     }
@@ -53,7 +64,6 @@ const Profile = () => {
     fetchOrders();
   }, [fetchOrders]);
 
-  // Save name to DB and update localStorage
   const handleSaveName = async () => {
     if (!name.trim() || name.trim() === userInfo.name) {
       setEditing(false);
@@ -63,14 +73,14 @@ const Profile = () => {
       setSaving(true);
       setSaveError("");
       const { data } = await axios.put(
-        `${BASE_URL}/api/users/profile`,
+        `/api/users/profile`,
         { name: name.trim() },
-        { headers: { Authorization: `Bearer ${userInfo.token}` } },
+        {
+          withCredentials: true,
+        },
       );
-      // data should return updated user; fallback to local if server returns partial
-      const updated = { ...userInfo, name: data.name || name.trim() };
-      localStorage.setItem("userInfo", JSON.stringify(updated));
-      setUserInfo(updated);
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      setUserInfo(data);
       setEditing(false);
     } catch (err) {
       setSaveError(
@@ -87,16 +97,25 @@ const Profile = () => {
     setEditing(false);
   };
 
-  const logoutHandler = () => {
-    localStorage.removeItem("userInfo");
-    navigate("/login");
-  };
+const logoutHandler = async () => {
+  try {
+    await axios.post(
+      `/api/users/logout`,
+      {},
+      {
+        withCredentials: true,
+      },
+    );
+  } catch (err) {}
+
+  localStorage.removeItem("userInfo");
+  navigate("/login");
+};
 
   if (!userInfo) return null;
 
   const avatar = userInfo.name?.charAt(0).toUpperCase();
 
-  // Only Terms left in menu (Orders & Wishlist removed per requirement)
   const menuItems = [
     {
       icon: FileText,
@@ -109,7 +128,7 @@ const Profile = () => {
   return (
     <div className="bg-[#F9F9F9] min-h-screen pt-24 sm:pt-28 pb-16">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
-        {/* ── PROFILE CARD ── */}
+  
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 mb-5 flex flex-col sm:flex-row items-center sm:items-start gap-5">
           <div className="w-20 h-20 rounded-2xl bg-[#1A302B] flex items-center justify-center text-white text-3xl font-bold flex-shrink-0">
             {avatar}
@@ -187,7 +206,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* ── STATS ROW ── */}
+      
         <div className="grid grid-cols-3 gap-3 mb-5">
           {[
             { label: "Orders", value: orders.length, to: "/orders" },
@@ -209,7 +228,6 @@ const Profile = () => {
           ))}
         </div>
 
-        {/* ── PLUS UPSELL (if not plus member) ── */}
         {!userInfo.isPlusMember && (
           <Link
             to="/plus"
@@ -231,7 +249,6 @@ const Profile = () => {
           </Link>
         )}
 
-        {/* ── MENU ITEMS ── */}
         {menuItems.length > 0 && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-5">
             {menuItems.map(({ icon: Icon, label, sub, to }, i) => (
@@ -263,7 +280,6 @@ const Profile = () => {
           </div>
         )}
 
-        {/* ── LOGOUT ── */}
         <button
           onClick={logoutHandler}
           className="w-full flex items-center justify-center gap-3 bg-white border border-red-100 text-red-500 py-4 rounded-2xl font-bold uppercase tracking-widest text-[11px] hover:bg-red-500 hover:text-white transition-all shadow-sm"

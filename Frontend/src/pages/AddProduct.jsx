@@ -10,8 +10,6 @@ import {
   Package,
 } from "lucide-react";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
 const AddProduct = () => {
   const [form, setForm] = useState({
     name: "",
@@ -46,7 +44,7 @@ const AddProduct = () => {
 
   const fetchLifestyles = async () => {
     try {
-      const { data } = await axios.get(`${BASE_URL}/api/lifestyle`);
+      const { data } = await axios.get(`/api/lifestyle`);
 
       setLifestyles(data);
     } catch (error) {
@@ -71,7 +69,7 @@ const AddProduct = () => {
     }
 
     try {
-      await axios.post(`${BASE_URL}/api/products`, formData, {
+      await axios.post(`/api/products`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

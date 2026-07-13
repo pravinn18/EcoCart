@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import axios from "../config/axios";
+import axiosInstance from "../config/axios";
+import { useAuth } from "../context/AuthContext";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+/* ---------- Shared bits (reduces repeated markup) ---------- */
 
 const BotanicalArt = () => (
   <svg
@@ -10,14 +11,12 @@ const BotanicalArt = () => (
     xmlns="http://www.w3.org/2000/svg"
     className="absolute inset-0 w-full h-full opacity-20 pointer-events-none select-none"
   >
-  
     <path
       d="M200 480 C200 480 195 350 200 200 C205 100 200 40 200 40"
       stroke="#C28E77"
       strokeWidth="1.5"
       strokeLinecap="round"
     />
-   
     <path
       d="M200 300 C160 280 100 240 80 180 C120 190 170 220 200 300Z"
       fill="#2d5a4e"
@@ -30,7 +29,6 @@ const BotanicalArt = () => (
       strokeWidth="0.6"
       strokeDasharray="2 4"
     />
-   
     <path
       d="M200 260 C240 235 310 200 330 140 C290 155 240 185 200 260Z"
       fill="#2d5a4e"
@@ -43,28 +41,24 @@ const BotanicalArt = () => (
       strokeWidth="0.6"
       strokeDasharray="2 4"
     />
-    
     <path
       d="M200 380 C170 358 130 330 110 285 C145 295 178 320 200 380Z"
       fill="#1e4035"
       stroke="#C28E77"
       strokeWidth="0.6"
     />
-  
     <path
       d="M200 200 C228 175 270 148 298 108 C264 120 225 148 200 200Z"
       fill="#1e4035"
       stroke="#C28E77"
       strokeWidth="0.6"
     />
-   
     <path
       d="M200 130 C215 112 240 96 258 72 C236 82 210 100 200 130Z"
       fill="#2d5a4e"
       stroke="#C28E77"
       strokeWidth="0.5"
     />
-  
     <path
       d="M200 300 C175 268 138 250 108 235"
       stroke="#C28E77"
@@ -77,13 +71,11 @@ const BotanicalArt = () => (
       strokeWidth="0.4"
       opacity="0.6"
     />
-    
     <circle cx="85" cy="170" r="2.5" fill="#C28E77" opacity="0.5" />
     <circle cx="335" cy="132" r="2" fill="#C28E77" opacity="0.4" />
     <circle cx="108" cy="278" r="1.5" fill="#C28E77" opacity="0.35" />
     <circle cx="302" cy="95" r="2" fill="#C28E77" opacity="0.45" />
     <circle cx="150" cy="430" r="1.5" fill="#C28E77" opacity="0.3" />
-   
     <path
       d="M20 460 C40 420 80 390 100 350"
       stroke="#C28E77"
@@ -107,6 +99,125 @@ const BotanicalArt = () => (
     />
   </svg>
 );
+
+// One icon component instead of 6+ duplicated inline <svg> blocks.
+const ICON_PATHS = {
+  mail: (
+    <>
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+      <polyline points="22,6 12,13 2,6" />
+    </>
+  ),
+  lock: (
+    <>
+      <rect x="3" y="11" width="18" height="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0110 0v4" />
+    </>
+  ),
+  user: (
+    <>
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </>
+  ),
+  check: (
+    <>
+      <path d="M9 11l3 3L22 4" />
+      <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+    </>
+  ),
+  alertCircle: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </>
+  ),
+  checkCircle: (
+    <>
+      <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </>
+  ),
+  spinner: (
+    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
+  ),
+};
+
+const Icon = ({ name, className = "w-4 h-4", spin = false }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className={`${className} ${spin ? "spin" : ""}`}
+  >
+    {ICON_PATHS[name]}
+  </svg>
+);
+
+const EyeIcon = ({ open }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    className="w-4 h-4"
+  >
+    {open ? (
+      <>
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+        <circle cx="12" cy="12" r="3" />
+      </>
+    ) : (
+      <>
+        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+        <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+        <line x1="1" y1="1" x2="23" y2="23" />
+      </>
+    )}
+  </svg>
+);
+
+// Button that handles its own loading/idle label + spinner (was duplicated 5x)
+const SubmitButton = ({ loading, loadingText, children }) => (
+  <button type="submit" className="btn-primary" disabled={loading}>
+    {loading ? (
+      <>
+        <Icon name="spinner" className="w-4 h-4" spin /> {loadingText}
+      </>
+    ) : (
+      children
+    )}
+  </button>
+);
+
+const Alert = ({ type, children }) =>
+  children ? (
+    <div className={`alert alert-${type === "error" ? "err" : "ok"}`}>
+      <Icon
+        name={type === "error" ? "alertCircle" : "checkCircle"}
+        className="w-4 h-4 shrink-0 mt-0.5"
+      />
+      {children}
+    </div>
+  ) : null;
+
+const StepBar = ({ active }) => (
+  <div className="step-bar">
+    <div
+      className={`step-seg ${active >= 1 ? "done" : ""} ${active === 1 ? "active" : ""}`}
+    />
+    <div className={`step-seg ${active === 2 ? "active" : ""}`} />
+  </div>
+);
+
+const StepLabel = ({ step, text }) => (
+  <p className="step-label">
+    Step {step} — {text}
+  </p>
+);
+
 const OtpInput = ({ value, onChange }) => {
   const refs = useRef([]);
   const digits = (value + "      ").slice(0, 6).split("");
@@ -151,31 +262,30 @@ const OtpInput = ({ value, onChange }) => {
     </div>
   );
 };
-const EyeIcon = ({ open }) =>
-  open ? (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      className="w-4 h-4"
-    >
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  ) : (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      className="w-4 h-4"
-    >
-      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-      <line x1="1" y1="1" x2="23" y2="23" />
-    </svg>
-  );
+
+// OTP field + resend timer row (was duplicated for reg + forgot-password flows)
+const OtpBlock = ({ value, onChange, timer, timerStr, onResend, loading }) => (
+  <div className="input-group" style={{ marginBottom: 18 }}>
+    <label className="input-label">Verification Code</label>
+    <OtpInput value={value} onChange={onChange} />
+    <div className="resend-row">
+      {timer > 0 ? (
+        <span className="resend-text">
+          Resend in <strong style={{ color: "#C28E77" }}>{timerStr}</strong>
+        </span>
+      ) : (
+        <button
+          type="button"
+          className="text-link"
+          onClick={onResend}
+          disabled={loading}
+        >
+          ↻ Resend OTP
+        </button>
+      )}
+    </div>
+  </div>
+);
 
 const InputField = ({
   label,
@@ -194,7 +304,11 @@ const InputField = ({
     <div className="input-group">
       {label && <label className="input-label">{label}</label>}
       <div className="input-wrap">
-        {icon && <span className="input-icon">{icon}</span>}
+        {icon && (
+          <span className="input-icon">
+            <Icon name={icon} />
+          </span>
+        )}
         <input
           type={type}
           value={value}
@@ -217,9 +331,12 @@ const InputField = ({
   );
 };
 
+/* ---------- Main component (all handlers/logic unchanged) ---------- */
+
 export default function Login() {
+  const { login } = useAuth();
   const [mode, setMode] = useState("login");
-  const [panelSide, setPanelSide] = useState("right"); // decorative panel side
+  const [panelSide, setPanelSide] = useState("right");
 
   const [lEmail, setLEmail] = useState("");
   const [lPassword, setLPassword] = useState("");
@@ -238,7 +355,6 @@ export default function Login() {
   const [msg, setMsg] = useState("");
   const [transitioning, setTransitioning] = useState(false);
 
-  // Forgot password states
   const [fpEmail, setFpEmail] = useState("");
   const [fpOtp, setFpOtp] = useState("");
   const [fpPassword, setFpPassword] = useState("");
@@ -290,12 +406,13 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      const { data } = await axios.post(`${BASE_URL}/api/auth/login`, {
+      const { data } = await axiosInstance.post("/api/auth/login", {
         email: lEmail,
         password: lPassword,
       });
+      login(data);
       localStorage.setItem("userInfo", JSON.stringify(data));
-      setMsg("Welcome back! Redirecting…");
+      setMsg("Welcome back! Redirecting...");
       setTimeout(() => {
         window.location.href = data.isAdmin ? "/admin" : "/";
       }, 900);
@@ -313,7 +430,9 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      await axios.post(`${BASE_URL}/api/auth/send-otp`, { email: rEmail });
+      await axiosInstance.post(`/api/auth/send-otp`, {
+        email: rEmail,
+      });
       setMsg(`Code sent to ${rEmail}`);
       setTimer(120);
       setOtp("");
@@ -330,7 +449,9 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      await axios.post(`${BASE_URL}/api/auth/send-otp`, { email: rEmail });
+      await axiosInstance.post(`/api/auth/send-otp`, {
+        email: rEmail,
+      });
       setMsg("New OTP sent!");
       setTimer(120);
       setOtp("");
@@ -346,9 +467,9 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-    await axios.post(`${BASE_URL}/api/auth/forgot-password-otp`, {
-      email: fpEmail,
-    });
+      await axiosInstance.post(`/api/auth/forgot-password-otp`, {
+        email: fpEmail,
+      });
       setMsg(`Code sent to ${fpEmail}`);
       setFpTimer(120);
       setFpOtp("");
@@ -365,7 +486,9 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      await axios.post(`${BASE_URL}/api/auth/send-otp`, { email: fpEmail });
+      await axiosInstance.post(`/api/auth/send-otp`, {
+        email: fpEmail,
+      });
       setMsg("New OTP sent!");
       setFpTimer(120);
       setFpOtp("");
@@ -393,7 +516,7 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      await axios.post(`${BASE_URL}/api/auth/reset-password`, {
+      await axiosInstance.post(`/api/auth/reset-password`, {
         email: fpEmail,
         otp: fpOtp.trim(),
         password: fpPassword,
@@ -424,14 +547,18 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      const { data } = await axios.post(`${BASE_URL}/api/auth/verify-otp`, {
-        name: rName,
-        email: rEmail,
-        password: rPassword,
-        otp: otp.trim(),
-      });
+      const { data } = await axiosInstance.post(
+        `/api/auth/verify-otp`,
+        {
+          name: rName,
+          email: rEmail,
+          password: rPassword,
+          otp: otp.trim(),
+        },
+      );
+      login(data);
       localStorage.setItem("userInfo", JSON.stringify(data));
-      setMsg("Account created! Redirecting…");
+      setMsg("Account created! Redirecting...");
       setTimeout(() => {
         window.location.href = "/";
       }, 900);
@@ -442,7 +569,7 @@ export default function Login() {
     }
   };
 
-const isRegisterMode = mode === "reg-email" || mode === "reg-form";
+  const isRegisterMode = mode === "reg-email" || mode === "reg-form";
   const formClass = `form-panel ${transitioning ? "form-exit" : "form-enter"}`;
 
   return (
@@ -453,42 +580,30 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         .auth-root {
-          min-height: 100vh;
+          min-height: 100dvh;
           display: flex;
           align-items: center;
           justify-content: center;
           background: #080f0c;
           font-family: 'DM Sans', sans-serif;
-          padding: 16px;
+          padding: clamp(12px, 4vw, 24px);
           position: relative;
           overflow: hidden;
         }
 
-        /* Ambient glow orbs */
-        .auth-root::before {
-          content: '';
-          position: fixed;
-          top: -20%;
-          left: -10%;
-          width: 600px;
-          height: 600px;
-          background: radial-gradient(circle, rgba(26,48,43,0.7) 0%, transparent 70%);
-          pointer-events: none;
-          z-index: 0;
-        }
+        .auth-root::before,
         .auth-root::after {
           content: '';
           position: fixed;
-          bottom: -15%;
-          right: -10%;
-          width: 500px;
-          height: 500px;
-          background: radial-gradient(circle, rgba(194,142,119,0.12) 0%, transparent 70%);
+          width: min(600px, 70vw);
+          height: min(600px, 70vw);
+          border-radius: 50%;
           pointer-events: none;
           z-index: 0;
         }
+        .auth-root::before { top: -20%; left: -10%; background: radial-gradient(circle, rgba(26,48,43,0.7) 0%, transparent 70%); }
+        .auth-root::after  { bottom: -15%; right: -10%; background: radial-gradient(circle, rgba(194,142,119,0.12) 0%, transparent 70%); }
 
-        /* Grain overlay */
         .grain {
           position: fixed;
           inset: 0;
@@ -499,20 +614,17 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           background-size: 200px;
         }
 
-        /* Main card */
+        /* Card scales fluidly from small phones up through large/TV screens */
         .auth-card {
           position: relative;
           z-index: 10;
           width: 100%;
-          max-width: 900px;
-          min-height: 560px;
+          max-width: min(900px, 92vw);
+          min-height: clamp(480px, 60vh, 560px);
           display: flex;
-          border-radius: 28px;
+          border-radius: clamp(16px, 2vw, 28px);
           overflow: hidden;
-          box-shadow:
-            0 0 0 1px rgba(194,142,119,0.12),
-            0 40px 80px rgba(0,0,0,0.6),
-            0 0 60px rgba(26,48,43,0.3);
+          box-shadow: 0 0 0 1px rgba(194,142,119,0.12), 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(26,48,43,0.3);
           animation: cardReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
@@ -521,7 +633,6 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           to   { opacity: 1; transform: translateY(0)   scale(1); }
         }
 
-        /* Decorative botanical panel */
         .deco-panel {
           width: 42%;
           background: linear-gradient(155deg, #0f2219 0%, #1A302B 40%, #0d1d17 100%);
@@ -530,22 +641,17 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 48px 36px;
+          padding: clamp(24px, 4vw, 48px) clamp(20px, 3vw, 36px);
           overflow: hidden;
-          transition: order 0.4s ease;
           flex-shrink: 0;
         }
-
         .deco-panel::before {
           content: '';
           position: absolute;
           inset: 0;
-          background:
-            radial-gradient(ellipse at 30% 20%, rgba(194,142,119,0.08) 0%, transparent 60%),
-            radial-gradient(ellipse at 70% 80%, rgba(45,90,78,0.15) 0%, transparent 60%);
+          background: radial-gradient(ellipse at 30% 20%, rgba(194,142,119,0.08) 0%, transparent 60%),
+                      radial-gradient(ellipse at 70% 80%, rgba(45,90,78,0.15) 0%, transparent 60%);
         }
-
-        /* Gold horizontal line */
         .deco-panel::after {
           content: '';
           position: absolute;
@@ -555,11 +661,7 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           opacity: 0.5;
         }
 
-        .deco-content {
-          position: relative;
-          z-index: 2;
-          text-align: center;
-        }
+        .deco-content { position: relative; z-index: 2; text-align: center; }
 
         .brand-mark {
           display: inline-flex;
@@ -576,7 +678,7 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
 
         .brand-name {
           font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 2rem;
+          font-size: clamp(1.5rem, 2vw + 1rem, 2rem);
           font-weight: 600;
           color: #fff;
           letter-spacing: 0.25em;
@@ -590,12 +692,12 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           color: rgba(194,142,119,0.7);
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          margin-bottom: 36px;
+          margin-bottom: clamp(20px, 3vw, 36px);
         }
 
         .deco-heading {
           font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 1.9rem;
+          font-size: clamp(1.5rem, 1.5vw + 1rem, 1.9rem);
           font-weight: 300;
           font-style: italic;
           color: #fff;
@@ -603,12 +705,7 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           margin-bottom: 10px;
         }
 
-        .deco-sub {
-          font-size: 12px;
-          color: rgba(255,255,255,0.45);
-          margin-bottom: 32px;
-          line-height: 1.6;
-        }
+        .deco-sub { font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 28px; line-height: 1.6; }
 
         .deco-btn {
           display: inline-flex;
@@ -626,43 +723,25 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           cursor: pointer;
           transition: all 0.25s ease;
           font-family: 'DM Sans', sans-serif;
+          min-height: 44px;
         }
-        .deco-btn:hover {
-          background: rgba(194,142,119,0.1);
-          border-color: #C28E77;
-          color: #fff;
-        }
+        .deco-btn:hover { background: rgba(194,142,119,0.1); border-color: #C28E77; color: #fff; }
 
-        /* Step pills on deco panel */
-        .step-pills {
-          display: flex;
-          gap: 6px;
-          margin-top: 28px;
-        }
-        .step-pill {
-          width: 28px;
-          height: 3px;
-          border-radius: 2px;
-          background: rgba(255,255,255,0.15);
-          transition: all 0.3s ease;
-        }
-        .step-pill.active {
-          background: #C28E77;
-          width: 44px;
-        }
+        .step-pills { display: flex; gap: 6px; margin-top: 28px; justify-content: center; }
+        .step-pill { width: 28px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.15); transition: all 0.3s ease; }
+        .step-pill.active { background: #C28E77; width: 44px; }
 
-        /* Form panel */
         .form-panel-wrap {
           flex: 1;
+          min-width: 0;
           background: #f8f5f0;
           display: flex;
           flex-direction: column;
           justify-content: center;
-          padding: 48px 44px;
+          padding: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 44px);
           position: relative;
           overflow: hidden;
         }
-
         .form-panel-wrap::before {
           content: '';
           position: absolute;
@@ -673,111 +752,62 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           pointer-events: none;
         }
 
-        /* Form transition */
-        .form-panel {
-          position: relative;
-          z-index: 2;
-        }
+        .form-panel { position: relative; z-index: 2; }
         .form-enter { animation: formIn 0.35s cubic-bezier(0.16,1,0.3,1) both; }
         .form-exit  { animation: formOut 0.28s ease both; }
+        @keyframes formIn  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes formOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-16px); } }
 
-        @keyframes formIn {
-          from { opacity: 0; transform: translateX(20px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes formOut {
-          from { opacity: 1; transform: translateX(0); }
-          to   { opacity: 0; transform: translateX(-16px); }
-        }
-
-        /* Step indicator */
-        .step-bar {
-          display: flex;
-          gap: 6px;
-          margin-bottom: 28px;
-        }
-        .step-seg {
-          height: 3px;
-          border-radius: 2px;
-          flex: 1;
-          background: #e2d9cf;
-          transition: background 0.3s ease;
-        }
+        .step-bar { display: flex; gap: 6px; margin-bottom: 24px; }
+        .step-seg { height: 3px; border-radius: 2px; flex: 1; background: #e2d9cf; transition: background 0.3s ease; }
         .step-seg.done { background: #1A302B; }
         .step-seg.active { background: linear-gradient(90deg, #1A302B, #C28E77); }
 
-        /* Form heading */
+        .step-label {
+          font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+          color: #C28E77; margin-bottom: 4px;
+        }
+
         .form-title {
           font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 2.2rem;
+          font-size: clamp(1.7rem, 1.5vw + 1.2rem, 2.2rem);
           font-weight: 600;
           color: #0f1e18;
           line-height: 1.1;
           margin-bottom: 4px;
         }
-        .form-sub {
-          font-size: 12px;
-          color: #9a8d83;
-          margin-bottom: 28px;
-          letter-spacing: 0.02em;
-        }
+        .form-sub { font-size: 12px; color: #9a8d83; margin-bottom: 24px; letter-spacing: 0.02em; }
 
-        /* Input group */
         .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-        .input-label {
-          font-size: 10px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-          color: #7a6e66;
-        }
+        .input-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #7a6e66; }
         .input-wrap { position: relative; }
-        .input-icon {
-          position: absolute;
-          left: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #b8a99c;
-          display: flex;
-          align-items: center;
+        .input-icon, .input-eye {
+          position: absolute; top: 50%; transform: translateY(-50%);
+          color: #b8a99c; display: flex; align-items: center;
         }
-        .input-eye {
-          position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #b8a99c;
-          background: none;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          transition: color 0.2s;
-        }
+        .input-icon { left: 12px; }
+        .input-eye { right: 8px; background: none; border: none; cursor: pointer; padding: 8px; transition: color 0.2s; }
         .input-eye:hover { color: #1A302B; }
 
         .luxury-input {
           width: 100%;
-          padding: 12px 40px 12px 12px;
+          padding: 13px 40px 13px 12px;
           background: #fff;
           border: 1.5px solid #e8dfd5;
           border-radius: 12px;
-          font-size: 13.5px;
+          font-size: 16px; /* prevents iOS auto-zoom on focus */
           color: #1a1a1a;
           font-family: 'DM Sans', sans-serif;
           transition: all 0.2s ease;
           outline: none;
         }
         .luxury-input::placeholder { color: #c5b8ae; }
-        .luxury-input:focus {
-          border-color: #C28E77;
-          box-shadow: 0 0 0 3px rgba(194,142,119,0.12);
-        }
+        .luxury-input:focus { border-color: #C28E77; box-shadow: 0 0 0 3px rgba(194,142,119,0.12); }
 
-        /* Primary button */
         .btn-primary {
           width: 100%;
           padding: 14px;
+          min-height: 48px;
           background: linear-gradient(135deg, #1A302B 0%, #2d5a4e 100%);
           color: #fff;
           border: none;
@@ -787,7 +817,7 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           font-family: 'DM Sans', sans-serif;
           letter-spacing: 0.08em;
           cursor: pointer;
-          transition: all 0.25s ease;
+          transition: box-shadow 0.25s ease, transform 0.25s ease;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -796,20 +826,9 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           position: relative;
           overflow: hidden;
         }
-        .btn-primary::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, transparent 0%, rgba(194,142,119,0.15) 100%);
-          opacity: 0;
-          transition: opacity 0.25s;
-        }
-        .btn-primary:hover::before { opacity: 1; }
         .btn-primary:hover { box-shadow: 0 8px 24px rgba(26,48,43,0.35); transform: translateY(-1px); }
         .btn-primary:active { transform: translateY(0); }
         .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
-
-        /* Gold shimmer on button */
         .btn-primary::after {
           content: '';
           position: absolute;
@@ -819,12 +838,8 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           transform: skewX(-20deg);
           animation: shimmer 3s infinite;
         }
-        @keyframes shimmer {
-          0%   { left: -75%; }
-          100% { left: 150%; }
-        }
+        @keyframes shimmer { 0% { left: -75%; } 100% { left: 150%; } }
 
-        /* Alert boxes */
         .alert {
           padding: 11px 14px;
           border-radius: 10px;
@@ -839,12 +854,11 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
         .alert-err { background: #fff5f5; border: 1px solid #fecaca; color: #dc2626; }
         .alert-ok  { background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; }
 
-        /* OTP boxes */
         .otp-box {
-          width: 44px;
-          height: 52px;
+          width: clamp(38px, 8vw, 44px);
+          height: clamp(46px, 10vw, 52px);
           text-align: center;
-          font-size: 20px;
+          font-size: clamp(18px, 3vw, 20px);
           font-weight: 700;
           font-family: 'Cormorant Garamond', serif;
           background: #fff;
@@ -855,43 +869,61 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           transition: all 0.2s ease;
           caret-color: #C28E77;
         }
-        .otp-box:focus {
-          border-color: #C28E77;
-          box-shadow: 0 0 0 3px rgba(194,142,119,0.15);
-        }
+        .otp-box:focus { border-color: #C28E77; box-shadow: 0 0 0 3px rgba(194,142,119,0.15); }
 
-        /* Link-style text button */
+        .resend-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; }
+        .resend-text { font-size: 11px; color: #9a8d83; }
+
         .text-link {
-          background: none;
-          border: none;
-          font-family: 'DM Sans', sans-serif;
-          font-size: 12px;
-          color: #C28E77;
-          font-weight: 600;
-          cursor: pointer;
-          text-decoration: underline;
-          text-underline-offset: 2px;
-          transition: color 0.2s;
-          padding: 0;
+          background: none; border: none; font-family: 'DM Sans', sans-serif;
+          font-size: 12px; color: #C28E77; font-weight: 600; cursor: pointer;
+          text-decoration: underline; text-underline-offset: 2px; transition: color 0.2s; padding: 4px;
         }
         .text-link:hover { color: #1A302B; }
         .text-link:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Divider */
-        .divider { border: none; border-top: 1px solid #ede5dc; margin: 20px 0; }
+        .foot-note { font-size: 12px; color: #9a8d83; text-align: center; }
+        .divider { border: none; border-top: 1px solid #ede5dc; margin: 18px 0; }
 
-        /* Spin animation */
         @keyframes spin { to { transform: rotate(360deg); } }
         .spin { animation: spin 0.8s linear infinite; }
 
-        /* Responsive */
-        @media (max-width: 680px) {
-          .auth-card { flex-direction: column; max-width: 400px; min-height: auto; border-radius: 20px; }
-          .deco-panel { width: 100%; min-height: 200px; padding: 28px 24px 24px; }
-          .deco-heading { font-size: 1.5rem; }
-          .form-panel-wrap { padding: 28px 24px 32px; }
-          .form-title { font-size: 1.75rem; }
-          .otp-box { width: 38px; height: 46px; font-size: 18px; }
+        .copyright {
+          position: relative; z-index: 10; margin-top: 20px; font-size: 10px;
+          color: rgba(255,255,255,0.2); letter-spacing: 0.15em; text-transform: uppercase; text-align: center;
+        }
+
+        /* ---------- Responsive: tablets and below stack the card vertically ---------- */
+        @media (max-width: 760px) {
+          .auth-card { flex-direction: column !important; max-width: min(420px, 94vw); min-height: auto; }
+          .deco-panel { width: 100%; min-height: 190px; padding: 24px 20px 20px; }
+          .step-pills { margin-top: 20px; }
+        }
+
+        /* ---------- Small phones ---------- */
+        @media (max-width: 380px) {
+          .otp-box { width: 34px; height: 42px; font-size: 16px; }
+          .deco-heading { font-size: 1.35rem; }
+          .brand-name { font-size: 1.3rem; letter-spacing: 0.18em; }
+        }
+
+        /* ---------- Short viewports (landscape phones) ---------- */
+        @media (max-height: 500px) and (orientation: landscape) {
+          .auth-root { align-items: flex-start; padding-top: 16px; }
+          .auth-card { flex-direction: row !important; min-height: auto; }
+          .deco-panel { min-height: auto; padding: 20px; }
+          .form-panel-wrap { padding: 20px 24px; }
+          .copyright { display: none; }
+        }
+
+        /* ---------- Large screens / TVs: keep the card human-scaled, don't stretch it ---------- */
+        @media (min-width: 1440px) {
+          .auth-card { max-width: 960px; }
+        }
+
+        /* Respect reduced-motion preference */
+        @media (prefers-reduced-motion: reduce) {
+          .auth-card, .form-enter, .form-exit, .btn-primary::after, .spin { animation: none !important; }
         }
       `}</style>
 
@@ -1001,37 +1033,8 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
 
           <div className="form-panel-wrap">
             <div className={formClass}>
-              {err && (
-                <div className="alert alert-err">
-                  <svg
-                    className="w-4 h-4 shrink-0 mt-0.5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                  {err}
-                </div>
-              )}
-              {msg && (
-                <div className="alert alert-ok">
-                  <svg
-                    className="w-4 h-4 shrink-0 mt-0.5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-                    <polyline points="22 4 12 14.01 9 11.01" />
-                  </svg>
-                  {msg}
-                </div>
-              )}
+              <Alert type="error">{err}</Alert>
+              <Alert type="ok">{msg}</Alert>
 
               {mode === "login" && (
                 <>
@@ -1046,18 +1049,7 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
                       value={lEmail}
                       onChange={setLEmail}
                       placeholder="you@example.com"
-                      icon={
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          className="w-4 h-4"
-                        >
-                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                          <polyline points="22,6 12,13 2,6" />
-                        </svg>
-                      }
+                      icon="mail"
                       required
                     />
                     <InputField
@@ -1066,51 +1058,15 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
                       value={lPassword}
                       onChange={setLPassword}
                       placeholder="Enter your password"
-                      icon={
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          className="w-4 h-4"
-                        >
-                          <rect x="3" y="11" width="18" height="11" rx="2" />
-                          <path d="M7 11V7a5 5 0 0110 0v4" />
-                        </svg>
-                      }
+                      icon="lock"
                       required
                     />
-                    <button
-                      type="submit"
-                      className="btn-primary"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <svg
-                            className="w-4 h-4 spin"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                          >
-                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
-                          </svg>{" "}
-                          Signing in…
-                        </>
-                      ) : (
-                        "Sign In →"
-                      )}
-                    </button>
+                    <SubmitButton loading={loading} loadingText="Signing in…">
+                      Sign In →
+                    </SubmitButton>
                   </form>
                   <hr className="divider" />
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: "#9a8d83",
-                      textAlign: "center",
-                    }}
-                  >
+                  <p className="foot-note">
                     Forgot your password?{" "}
                     <button
                       className="text-link"
@@ -1124,22 +1080,8 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
 
               {mode === "reg-email" && (
                 <>
-                  <div className="step-bar">
-                    <div className="step-seg active" />
-                    <div className="step-seg" />
-                  </div>
-                  <p
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      color: "#C28E77",
-                      marginBottom: 4,
-                    }}
-                  >
-                    Step 1 — Verify Email
-                  </p>
+                  <StepBar active={1} />
+                  <StepLabel step={1} text="Verify Email" />
                   <p className="form-title">
                     What's your
                     <br />
@@ -1154,51 +1096,15 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
                       value={rEmail}
                       onChange={setREmail}
                       placeholder="your@email.com"
-                      icon={
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          className="w-4 h-4"
-                        >
-                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                          <polyline points="22,6 12,13 2,6" />
-                        </svg>
-                      }
+                      icon="mail"
                       required
                     />
-                    <button
-                      type="submit"
-                      className="btn-primary"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <svg
-                            className="w-4 h-4 spin"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                          >
-                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
-                          </svg>{" "}
-                          Sending Code…
-                        </>
-                      ) : (
-                        "Get OTP →"
-                      )}
-                    </button>
+                    <SubmitButton loading={loading} loadingText="Sending Code…">
+                      Get OTP →
+                    </SubmitButton>
                   </form>
                   <hr className="divider" />
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: "#9a8d83",
-                      textAlign: "center",
-                    }}
-                  >
+                  <p className="foot-note">
                     Already have an account?{" "}
                     <button
                       className="text-link"
@@ -1212,22 +1118,8 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
 
               {mode === "reg-form" && (
                 <>
-                  <div className="step-bar">
-                    <div className="step-seg done" />
-                    <div className="step-seg active" />
-                  </div>
-                  <p
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      color: "#C28E77",
-                      marginBottom: 4,
-                    }}
-                  >
-                    Step 2 — Complete Registration
-                  </p>
+                  <StepBar active={2} />
+                  <StepLabel step={2} text="Complete Registration" />
                   <p className="form-title">
                     Almost
                     <br />
@@ -1239,56 +1131,20 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
                   </p>
 
                   <form onSubmit={handleRegister}>
-                    <div className="input-group" style={{ marginBottom: 18 }}>
-                      <label className="input-label">Verification Code</label>
-                      <OtpInput value={otp} onChange={setOtp} />
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 6,
-                          marginTop: 8,
-                        }}
-                      >
-                        {timer > 0 ? (
-                          <span style={{ fontSize: 11, color: "#9a8d83" }}>
-                            Resend in{" "}
-                            <strong style={{ color: "#C28E77" }}>
-                              {timerStr}
-                            </strong>
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            className="text-link"
-                            onClick={handleResend}
-                            disabled={loading}
-                          >
-                            ↻ Resend OTP
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
+                    <OtpBlock
+                      value={otp}
+                      onChange={setOtp}
+                      timer={timer}
+                      timerStr={timerStr}
+                      onResend={handleResend}
+                      loading={loading}
+                    />
                     <InputField
                       label="Full Name"
-                      type="text"
                       value={rName}
                       onChange={setRName}
                       placeholder="Your full name"
-                      icon={
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          className="w-4 h-4"
-                        >
-                          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                          <circle cx="12" cy="7" r="4" />
-                        </svg>
-                      }
+                      icon="user"
                       required
                     />
                     <InputField
@@ -1297,18 +1153,7 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
                       value={rPassword}
                       onChange={setRPassword}
                       placeholder="Min. 6 characters"
-                      icon={
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          className="w-4 h-4"
-                        >
-                          <rect x="3" y="11" width="18" height="11" rx="2" />
-                          <path d="M7 11V7a5 5 0 0110 0v4" />
-                        </svg>
-                      }
+                      icon="lock"
                       required
                     />
                     <InputField
@@ -1317,65 +1162,23 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
                       value={rConfirm}
                       onChange={setRConfirm}
                       placeholder="Repeat password"
-                      icon={
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          className="w-4 h-4"
-                        >
-                          <path d="M9 11l3 3L22 4" />
-                          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-                        </svg>
-                      }
+                      icon="check"
                       required
                     />
-
-                    <button
-                      type="submit"
-                      className="btn-primary"
-                      disabled={loading}
+                    <SubmitButton
+                      loading={loading}
+                      loadingText="Creating Account…"
                     >
-                      {loading ? (
-                        <>
-                          <svg
-                            className="w-4 h-4 spin"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                          >
-                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
-                          </svg>{" "}
-                          Creating Account…
-                        </>
-                      ) : (
-                        "Verify & Create Account →"
-                      )}
-                    </button>
+                      Verify & Create Account →
+                    </SubmitButton>
                   </form>
                 </>
               )}
 
               {mode === "fp-email" && (
                 <>
-                  <div className="step-bar">
-                    <div className="step-seg active" />
-                    <div className="step-seg" />
-                  </div>
-                  <p
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      color: "#C28E77",
-                      marginBottom: 4,
-                    }}
-                  >
-                    Step 1 — Verify Email
-                  </p>
+                  <StepBar active={1} />
+                  <StepLabel step={1} text="Verify Email" />
                   <p className="form-title">
                     Forgot your
                     <br />
@@ -1391,51 +1194,15 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
                       value={fpEmail}
                       onChange={setFpEmail}
                       placeholder="you@example.com"
-                      icon={
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          className="w-4 h-4"
-                        >
-                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                          <polyline points="22,6 12,13 2,6" />
-                        </svg>
-                      }
+                      icon="mail"
                       required
                     />
-                    <button
-                      type="submit"
-                      className="btn-primary"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <svg
-                            className="w-4 h-4 spin"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                          >
-                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
-                          </svg>{" "}
-                          Sending Code…
-                        </>
-                      ) : (
-                        "Send Reset Code →"
-                      )}
-                    </button>
+                    <SubmitButton loading={loading} loadingText="Sending Code…">
+                      Send Reset Code →
+                    </SubmitButton>
                   </form>
                   <hr className="divider" />
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: "#9a8d83",
-                      textAlign: "center",
-                    }}
-                  >
+                  <p className="foot-note">
                     Remembered it?{" "}
                     <button
                       className="text-link"
@@ -1449,22 +1216,8 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
 
               {mode === "fp-reset" && (
                 <>
-                  <div className="step-bar">
-                    <div className="step-seg done" />
-                    <div className="step-seg active" />
-                  </div>
-                  <p
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      color: "#C28E77",
-                      marginBottom: 4,
-                    }}
-                  >
-                    Step 2 — Reset Password
-                  </p>
+                  <StepBar active={2} />
+                  <StepLabel step={2} text="Reset Password" />
                   <p className="form-title">
                     New
                     <br />
@@ -1475,55 +1228,21 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
                     <strong style={{ color: "#1A302B" }}>{fpEmail}</strong>
                   </p>
                   <form onSubmit={handleFpReset}>
-                    <div className="input-group" style={{ marginBottom: 18 }}>
-                      <label className="input-label">Verification Code</label>
-                      <OtpInput value={fpOtp} onChange={setFpOtp} />
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 6,
-                          marginTop: 8,
-                        }}
-                      >
-                        {fpTimer > 0 ? (
-                          <span style={{ fontSize: 11, color: "#9a8d83" }}>
-                            Resend in{" "}
-                            <strong style={{ color: "#C28E77" }}>
-                              {fpTimerStr}
-                            </strong>
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            className="text-link"
-                            onClick={handleFpResend}
-                            disabled={loading}
-                          >
-                            ↻ Resend OTP
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                    <OtpBlock
+                      value={fpOtp}
+                      onChange={setFpOtp}
+                      timer={fpTimer}
+                      timerStr={fpTimerStr}
+                      onResend={handleFpResend}
+                      loading={loading}
+                    />
                     <InputField
                       label="New Password"
                       type="password"
                       value={fpPassword}
                       onChange={setFpPassword}
                       placeholder="Min. 6 characters"
-                      icon={
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          className="w-4 h-4"
-                        >
-                          <rect x="3" y="11" width="18" height="11" rx="2" />
-                          <path d="M7 11V7a5 5 0 0110 0v4" />
-                        </svg>
-                      }
+                      icon="lock"
                       required
                     />
                     <InputField
@@ -1532,42 +1251,12 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
                       value={fpConfirm}
                       onChange={setFpConfirm}
                       placeholder="Repeat new password"
-                      icon={
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          className="w-4 h-4"
-                        >
-                          <path d="M9 11l3 3L22 4" />
-                          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-                        </svg>
-                      }
+                      icon="check"
                       required
                     />
-                    <button
-                      type="submit"
-                      className="btn-primary"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <svg
-                            className="w-4 h-4 spin"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                          >
-                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
-                          </svg>{" "}
-                          Resetting…
-                        </>
-                      ) : (
-                        "Reset Password →"
-                      )}
-                    </button>
+                    <SubmitButton loading={loading} loadingText="Resetting…">
+                      Reset Password →
+                    </SubmitButton>
                   </form>
                 </>
               )}
@@ -1575,19 +1264,7 @@ const isRegisterMode = mode === "reg-email" || mode === "reg-form";
           </div>
         </div>
 
-        <p
-          style={{
-            position: "relative",
-            zIndex: 10,
-            marginTop: 20,
-            fontSize: 10,
-            color: "rgba(255,255,255,0.2)",
-            fontFamily: "'DM Sans',sans-serif",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            textAlign: "center",
-          }}
-        >
+        <p className="copyright">
           © {new Date().getFullYear()} Ecocart · Secure &amp; Encrypted
         </p>
       </div>

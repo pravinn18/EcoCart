@@ -6,7 +6,7 @@ import { Plus, Camera, Trash2, Pencil, Link } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 
 const ShopByLifestyle = () => {
   const [items, setItems] = useState([]);
@@ -24,7 +24,7 @@ const ShopByLifestyle = () => {
   const isAdmin = userInfo?.isAdmin;
 
   const fetchLifestyle = async () => {
-    const { data } = await axios.get(`${BASE_URL}/api/lifestyle`);
+    const { data } = await axios.get(`/api/lifestyle`);
 
     setItems(data);
   };
@@ -81,7 +81,7 @@ const handleClick = (item) => {
   fd.append("link", `/lifestyle/${encodeURIComponent(lifestyleSlug)}`);
 
     await axios.post(
-      `${BASE_URL}/api/lifestyle`,
+      `/api/lifestyle`,
 
       fd,
     );
@@ -90,7 +90,7 @@ const handleClick = (item) => {
   };
 
   const deleteLifestyle = async (id) => {
-    await axios.delete(`${BASE_URL}/api/lifestyle/${id}`);
+    await axios.delete(`/api/lifestyle/${id}`);
 
     fetchLifestyle();
   };
@@ -111,7 +111,7 @@ const handleClick = (item) => {
    const link = `/lifestyle/${encodeURIComponent(title)}`;
 
  await axios.put(
-   `${BASE_URL}/api/lifestyle/${item._id}`,
+   `/api/lifestyle/${item._id}`,
 
    {
      title,
@@ -137,7 +137,7 @@ const handleClick = (item) => {
     );
 
     await axios.put(
-      `${BASE_URL}/api/lifestyle/image/${activeId}`,
+      `/api/lifestyle/image/${activeId}`,
 
       fd,
     );

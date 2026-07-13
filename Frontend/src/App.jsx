@@ -24,6 +24,7 @@ import PlusPage from "./pages/PlusPage";
 import SearchResults from "./pages/SearchResults";
 import SplashScreen from "./components/SplashScreen";
 import LifestyleProducts from "./pages/LifestyleProducts";
+import { AuthProvider } from "./context/AuthContext";
 
 const Dashboard = () => <h1>Dashboard</h1>;
 
@@ -58,41 +59,70 @@ function App() {
   return (
     <WishlistProvider>
       <CartProvider>
-        <BrowserRouter>
-          <Layout>
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Home />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/product/:id" element={<ProductDetails />} />
-              <Route
-                path="/category/:categoryName"
-                element={<CategoryProducts />}
-              />
-              <Route path="/search" element={<SearchResults />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout/address" element={<CheckoutAddress />} />
-              <Route path="/checkout/payment" element={<CheckoutPayment />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/orders/:id" element={<OrderDetails />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/plus" element={<PlusPage />} />
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="/admin/add-product" element={<AddProduct />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/lifestyle/:name" element={<LifestyleProducts />} />
-            </Routes>
-          </Layout>
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
+                <Route
+                  path="/category/:categoryName"
+                  element={<CategoryProducts />}
+                />
+                <Route path="/search" element={<SearchResults />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout/address" element={<CheckoutAddress />} />
+                <Route path="/checkout/payment" element={<CheckoutPayment />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/orders/:id" element={<OrderDetails />} />
+                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route
+                  path="/plus"
+                  element={
+                    <ProtectedRoute>
+                      <PlusPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/add-product"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AddProduct />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/dashboard"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+               
+
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/lifestyle/:name"
+                  element={<LifestyleProducts />}
+                />
+              </Routes>
+            </Layout>
+          </BrowserRouter>
+        </AuthProvider>
       </CartProvider>
     </WishlistProvider>
   );

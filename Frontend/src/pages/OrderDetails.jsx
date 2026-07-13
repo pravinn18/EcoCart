@@ -16,7 +16,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const CancelCountdown = ({ createdAt }) => {
   const [remaining, setRemaining] = useState(() => {
@@ -153,22 +152,10 @@ const OrderDetails = () => {
   const [error, setError] = useState("");
   const [cancelling, setCancelling] = useState(false);
 
-  const getToken = () => {
-    try {
-      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      return userInfo?.token;
-    } catch {
-      return null;
-    }
-  };
-
   const fetchOrder = useCallback(async () => {
     try {
       setLoading(true);
-      const token = getToken();
-      const { data } = await axios.get(`${BASE_URL}/api/orders/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+     const { data } = await axios.get(`/api/orders/${id}`);
       setOrder(data);
     } catch (err) {
       setError(
@@ -195,12 +182,8 @@ const OrderDetails = () => {
     if (!window.confirm("Cancel this order? This cannot be undone.")) return;
     setCancelling(true);
     try {
-      await axios.put(
-        `${BASE_URL}/api/orders/${id}/cancel`,
-        {},
-        { headers: { Authorization: `Bearer ${getToken()}` } },
-      );
-      setOrder((prev) => ({ ...prev, isCancelled: true }));
+      await axios.put(`/api/orders/${id}/cancel`, {});
+      await fetchOrder();
     } catch (err) {
       alert(err.response?.data?.message || "Cancellation failed.");
     } finally {
@@ -262,7 +245,6 @@ const OrderDetails = () => {
 
   return (
     <div className="bg-[#F9F9F9] min-h-screen pb-16 pt-24 sm:pt-28">
-     
       <div className="sticky top-0 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm z-30 px-4 sm:px-6 py-3 sm:py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -290,9 +272,7 @@ const OrderDetails = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-6 sm:mt-8 flex flex-col lg:flex-row gap-5 sm:gap-6">
-      
         <div className="flex-1 space-y-4 sm:space-y-5">
-        
           {order.isCancelled && order.isPaid && !order.isRefunded && (
             <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-center gap-3">
               <Clock size={15} className="text-amber-500 shrink-0" />
@@ -327,7 +307,6 @@ const OrderDetails = () => {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
                 <CreditCard size={15} className="text-blue-500" />
@@ -399,9 +378,11 @@ const OrderDetails = () => {
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl border border-gray-100 flex items-center justify-center p-1.5 shrink-0">
                       <img
                         src={
-                          item.image?.startsWith("http")
-                            ? item.image
-                            : `${BASE_URL}${item.image}`
+                          item.image
+                            ? item.image.startsWith("http")
+                              ? item.image
+                              : `${BASE_URL}${item.image}`
+                            : "/placeholder.png"
                         }
                         alt={item.name}
                         className="object-contain h-full w-full"

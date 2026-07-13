@@ -8,7 +8,6 @@ import ShopByLifestyle from "../components/ShopByLifestyle";
 import EcoCartPlusSection from "../components/EcoCartPlusSection";
 
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -17,13 +16,13 @@ const Home = () => {
   useEffect(() => {
    
     axios
-      .get(`${BASE_URL}/api/products`)
+      .get(`/api/products`)
       .then((res) => setProducts(res.data))
       .catch((err) => console.error("Product fetch error:", err));
 
     
     axios
-      .get(`${BASE_URL}/api/categories`)
+      .get(`/api/categories`)
       .then((res) => setCategories(res.data))
       .catch((err) => console.error("Category fetch error:", err));
   }, []);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import axios from "../config/axios";
@@ -12,7 +12,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const CheckoutPayment = () => {
   const navigate = useNavigate();
@@ -22,14 +21,21 @@ const CheckoutPayment = () => {
   const [success, setSuccess] = useState(false);
 
   const address = JSON.parse(sessionStorage.getItem("checkoutAddress") || "{}");
+useEffect(() => {
+  if (success) return;
 
-  const getToken = () => {
-    try {
-      return JSON.parse(localStorage.getItem("userInfo"))?.token;
-    } catch {
-      return null;
-    }
-  };
+  if (
+    !address.fullName ||
+    !address.phone ||
+    !address.addressLine1 ||
+    !address.city ||
+    !address.state ||
+    !address.pincode
+  ) {
+    alert("Please select a delivery address.");
+    navigate("/checkout/address", { replace: true });
+  }
+}, [address, navigate, success]);
 
   const buildOrderItems = () =>
     cartItems.map((item) => ({
@@ -42,8 +48,11 @@ const CheckoutPayment = () => {
     }));
 
   const handlePlaceOrder = async () => {
+    if (placing) return;
+
     try {
       setPlacing(true);
+
       if (cartItems.length === 0) {
         alert("Your cart is empty");
         return;
@@ -51,7 +60,7 @@ const CheckoutPayment = () => {
 
       for (const item of cartItems) {
         const { data: latestProduct } = await axios.get(
-          `${BASE_URL}/api/products/${item._id}`,
+          `/api/products/${item._id}`,
         );
         const availableStock = Number(
           latestProduct.quantity || latestProduct.stock || 0,
@@ -66,24 +75,15 @@ const CheckoutPayment = () => {
         }
       }
 
-      const token = getToken();
-      if (!token) {
-        alert("Please login first");
-        return;
-      }
-
       const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        withCredentials: true,
       };
 
       const orderItems = buildOrderItems();
 
       if (paymentMethod === "COD") {
         await axios.post(
-          `${BASE_URL}/api/orders`,
+          `/api/orders`,
           {
             orderItems,
             shippingAddress: address,
@@ -93,9 +93,12 @@ const CheckoutPayment = () => {
           config,
         );
         await clearCart();
-        sessionStorage.removeItem("checkoutAddress");
-        setSuccess(true);
-        setTimeout(() => navigate("/orders"), 2500);
+    setSuccess(true);
+
+    setTimeout(() => {
+      sessionStorage.removeItem("checkoutAddress");
+      navigate("/orders", { replace: true });
+    }, 2500);
         return;
       }
 
@@ -106,8 +109,9 @@ const CheckoutPayment = () => {
       }
 
       const { data: razorpayOrder } = await axios.post(
-        `${BASE_URL}/api/payment/create-order`,
+        `/api/payment/create-order`,
         { amount: totalAmount },
+        config,
       );
 
       const options = {
@@ -119,11 +123,17 @@ const CheckoutPayment = () => {
         description: "Order Payment",
         prefill: { name: address.fullName || "", contact: address.phone || "" },
         theme: { color: "#1A302B" },
+        modal: {
+          ondismiss: () => {
+            setPlacing(false);
+          },
+        },
         handler: async function (response) {
           try {
             const { data: verify } = await axios.post(
-              `${BASE_URL}/api/payment/verify-payment`,
+              `/api/payment/verify-payment`,
               response,
+              config,
             );
             if (!verify.success) {
               alert("Payment verification failed");
@@ -131,7 +141,7 @@ const CheckoutPayment = () => {
             }
 
             await axios.post(
-              `${BASE_URL}/api/orders`,
+              `$/api/orders`,
               {
                 orderItems,
                 shippingAddress: address,
@@ -140,9 +150,18 @@ const CheckoutPayment = () => {
               },
               config,
             );
+
+            await axios.post(
+              `/api/users/record-order`,
+              {
+                totalPrice: Number(totalAmount),
+              },
+              config,
+            );
+
             try {
               const { data: loyaltyData } = await axios.post(
-                `${BASE_URL}/api/users/record-order`,
+                `/api/users/record-order`,
                 { totalPrice: Number(totalAmount) },
                 config,
               );
@@ -176,15 +195,25 @@ const CheckoutPayment = () => {
             await clearCart();
             sessionStorage.removeItem("checkoutAddress");
             setSuccess(true);
-            setTimeout(() => navigate("/orders"), 2500);
+            setTimeout(() => {
+              navigate("/orders", {
+                replace: true,
+              });
+            }, 2500);
           } catch (err) {
             console.error(err);
             alert("Order creation failed");
           }
         },
       };
-
       const paymentObject = new window.Razorpay(options);
+
+      paymentObject.on("payment.failed", function () {
+        setPlacing(false);
+
+        alert("Payment failed.");
+      });
+
       paymentObject.open();
     } catch (error) {
       console.error("Order error:", error.response?.data || error.message);
@@ -216,7 +245,6 @@ const CheckoutPayment = () => {
   return (
     <div className="bg-[#F9F9F9] min-h-screen py-12 pt-28 sm:pt-32">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
-       
         <div className="flex justify-center items-center space-x-2 sm:space-x-4 mb-10 sm:mb-12 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest">
           <span className="text-gray-400">01 Cart</span>
           <div className="h-[1px] w-8 sm:w-12 bg-gray-200" />
@@ -226,7 +254,6 @@ const CheckoutPayment = () => {
         </div>
 
         <div className="space-y-4 sm:space-y-5">
-        
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">
               Delivering To
@@ -247,7 +274,6 @@ const CheckoutPayment = () => {
               Payment Method
             </p>
             <div className="space-y-3">
-              
               <button
                 onClick={() => setPaymentMethod("COD")}
                 className={`w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border-2 transition-all ${
