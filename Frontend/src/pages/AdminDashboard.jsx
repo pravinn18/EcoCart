@@ -19,53 +19,54 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-
-
 const StatCard = ({ title, value, icon: Icon, accent, gradient }) => (
-  <div className="bg-white rounded-3xl shadow-md p-5 sm:p-6 relative overflow-hidden group hover:shadow-xl transition-all">
+  <div className="bg-white rounded-2xl sm:rounded-3xl shadow-md p-4 sm:p-5 md:p-6 relative overflow-hidden group hover:shadow-xl transition-all">
     <div
       className="absolute inset-0 opacity-5 group-hover:opacity-10 transition"
       style={{ background: `linear-gradient(135deg, ${gradient})` }}
     />
-    <div className="flex justify-between items-center mb-3 sm:mb-4 relative z-10">
-      <span className="text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider">
+    <div className="flex justify-between items-center mb-2 sm:mb-3 md:mb-4 relative z-10">
+      <span className="text-[9px] min-[380px]:text-[10px] sm:text-xs md:text-xs font-semibold text-gray-400 uppercase tracking-wider">
         {title}
       </span>
 
       <div
-        className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center"
+        className="w-8 h-8 min-[380px]:w-9 min-[380px]:h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-xl flex items-center justify-center shrink-0"
         style={{ backgroundColor: `${accent}20`, color: accent }}
       >
-        <Icon size={17} />
+        <Icon
+          size={16}
+          className="sm:w-[17px] sm:h-[17px] md:w-[19px] md:h-[19px]"
+        />
       </div>
     </div>
 
-    <div className="text-2xl sm:text-3xl font-extrabold text-gray-800 relative z-10 break-all">
+    <div className="text-xl min-[380px]:text-2xl sm:text-2xl md:text-3xl lg:text-3xl font-extrabold text-gray-800 relative z-10 break-all">
       {value}
     </div>
   </div>
 );
 
 const MiniCard = ({ title, value, icon: Icon }) => (
-  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 text-center hover:shadow-md transition">
-    <div className="flex justify-center mb-2 text-[#C28E77]">
-      <Icon size={17} />
+  <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-3 min-[380px]:p-4 sm:p-5 text-center hover:shadow-md transition">
+    <div className="flex justify-center mb-1.5 sm:mb-2 text-[#C28E77]">
+      <Icon size={16} className="sm:w-[17px] sm:h-[17px]" />
     </div>
 
-    <p className="text-[10px] sm:text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
+    <p className="text-[9px] min-[380px]:text-[10px] sm:text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
       {title}
     </p>
 
-    <p className="text-lg sm:text-xl font-bold text-gray-700">{value}</p>
+    <p className="text-base min-[380px]:text-lg sm:text-xl font-bold text-gray-700">
+      {value}
+    </p>
   </div>
 );
-
 
 const AdminDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
 
   const getUserInfo = () => {
     try {
@@ -83,15 +84,13 @@ const AdminDashboard = () => {
 
       const userInfo = getUserInfo();
 
- 
       if (!userInfo?.isAdmin) {
         setError("Admin access denied");
         setLoading(false);
         return;
       }
 
- 
-    const { data } = await axios.get("/api/orders/admin/dashboard");
+      const { data } = await axios.get("/api/orders/admin/dashboard");
       setData(data);
     } catch (err) {
       console.log("Dashboard Error:", err.response?.data || err.message);
@@ -108,7 +107,6 @@ const AdminDashboard = () => {
     }
   };
 
- 
   useEffect(() => {
     getDashboardData();
   }, []);
@@ -126,7 +124,6 @@ const AdminDashboard = () => {
     lowStockProducts: data?.lowStockProducts || [],
   };
 
-  
   const handleExportPDF = () => {
     const doc = new jsPDF({
       orientation: "portrait",
@@ -253,7 +250,6 @@ const AdminDashboard = () => {
         doc.setTextColor("#EF4444");
         doc.setFont("helvetica", "bold");
 
-       
         doc.text(
           `${p.quantity || p.stock || 0} Units`,
           pageWidth - margin - 100,
@@ -286,14 +282,13 @@ const AdminDashboard = () => {
     doc.save(`Ecocart_Report_${new Date().toISOString().split("T")[0]}.pdf`);
   };
 
-
   const handleResetMonthly = async () => {
     if (!window.confirm("Reset all monthly stats?")) return;
 
     try {
       const userInfo = getUserInfo();
 
-    await axios.put("/api/orders/reset-monthly-data", {});
+      await axios.put("/api/orders/reset-monthly-data", {});
 
       alert("Monthly stats reset successfully ✅");
 
@@ -305,14 +300,13 @@ const AdminDashboard = () => {
     }
   };
 
-  
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="animate-spin text-[#C28E77]" size={40} />
+      <div className="flex h-56 sm:h-64 items-center justify-center px-4">
+        <div className="flex flex-col items-center gap-3 sm:gap-4">
+          <Loader2 className="animate-spin text-[#C28E77] w-8 h-8 sm:w-10 sm:h-10" />
 
-          <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-gray-400 text-center">
             Crunching Stats...
           </p>
         </div>
@@ -322,15 +316,17 @@ const AdminDashboard = () => {
 
   if (error) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="text-center space-y-4">
-          <XCircle size={48} className="text-red-300 mx-auto" />
+      <div className="flex h-56 sm:h-64 items-center justify-center px-4">
+        <div className="text-center space-y-3 sm:space-y-4">
+          <XCircle size={40} className="text-red-300 mx-auto sm:w-12 sm:h-12" />
 
-          <p className="text-red-500 font-semibold">{error}</p>
+          <p className="text-red-500 font-semibold text-sm sm:text-base">
+            {error}
+          </p>
 
           <button
             onClick={getDashboardData}
-            className="bg-[#1A302B] text-white px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-black transition-all"
+            className="bg-[#1A302B] text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest hover:bg-black transition-all"
           >
             Try Again
           </button>
@@ -339,11 +335,9 @@ const AdminDashboard = () => {
     );
   }
 
- 
   return (
-    <div className="mt-10">
-      
-      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-6 sm:mb-8">
+    <div className="mt-6 sm:mt-8 md:mt-10 w-full max-w-[1920px] mx-auto px-3 min-[380px]:px-4 sm:px-6 md:px-8 lg:px-10 2xl:px-16 min-[1920px]:px-24">
+      <div className="flex items-center gap-2 text-[9px] min-[380px]:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-5 sm:mb-6 md:mb-8">
         <BarChart2 size={13} />
 
         <span>Admin</span>
@@ -353,44 +347,47 @@ const AdminDashboard = () => {
         <span className="text-[#C28E77]">Dashboard</span>
       </div>
 
-   
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 mb-8 sm:mb-10">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8 md:mb-10">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">
+          <h2 className="text-lg min-[380px]:text-xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-800 tracking-tight">
             Overview
           </h2>
 
-          <p className="text-gray-500 mt-1 text-sm">
+          <p className="text-gray-500 mt-1 text-xs min-[380px]:text-sm sm:text-sm md:text-base">
             Monitor revenue, orders and inventory in real-time.
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2 sm:gap-3">
+        <div className="grid grid-cols-3 gap-2 min-[380px]:gap-2.5 sm:flex sm:flex-wrap sm:gap-3">
           <button
             onClick={getDashboardData}
-            className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-600 px-4 sm:px-5 py-2 sm:py-2.5 rounded-2xl shadow-md hover:shadow-xl transition-all text-xs sm:text-sm font-semibold"
+            className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white border border-gray-200 text-gray-600 px-2 min-[380px]:px-3 sm:px-5 py-2.5 sm:py-2.5 rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl active:scale-95 transition-all text-[10px] min-[380px]:text-[11px] sm:text-sm font-semibold whitespace-nowrap"
           >
-            <RefreshCw size={13} /> Refresh
+            <RefreshCw size={13} className="shrink-0" />
+            <span>Refresh</span>
           </button>
 
           <button
             onClick={handleResetMonthly}
-            className="flex items-center justify-center gap-2 bg-white text-red-500 border border-red-200 px-4 sm:px-5 py-2 sm:py-2.5 rounded-2xl shadow-md hover:bg-red-600 hover:text-white hover:shadow-xl transition-all text-xs sm:text-sm font-semibold"
+            className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white text-red-500 border border-red-200 px-2 min-[380px]:px-3 sm:px-5 py-2.5 sm:py-2.5 rounded-xl sm:rounded-2xl shadow-md hover:bg-red-600 hover:text-white hover:shadow-xl active:scale-95 transition-all text-[10px] min-[380px]:text-[11px] sm:text-sm font-semibold whitespace-nowrap"
           >
-            <RotateCcw size={13} /> Reset Monthly
+            <RotateCcw size={13} className="shrink-0" />
+            <span className="sm:hidden">Reset</span>
+            <span className="hidden sm:inline">Reset Monthly</span>
           </button>
 
           <button
             onClick={handleExportPDF}
-            className="flex items-center justify-center gap-2 bg-[#1A302B] text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-2xl shadow-md hover:bg-black hover:shadow-xl transition-all text-xs sm:text-sm font-semibold"
+            className="flex items-center justify-center gap-1.5 sm:gap-2 bg-[#1A302B] text-white px-2 min-[380px]:px-3 sm:px-5 py-2.5 sm:py-2.5 rounded-xl sm:rounded-2xl shadow-md hover:bg-black hover:shadow-xl active:scale-95 transition-all text-[10px] min-[380px]:text-[11px] sm:text-sm font-semibold whitespace-nowrap"
           >
-            <FileText size={13} /> Export PDF
+            <FileText size={13} className="shrink-0" />
+            <span className="sm:hidden">Export</span>
+            <span className="hidden sm:inline">Export PDF</span>
           </button>
         </div>
       </div>
 
-      
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 min-[380px]:gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-6 sm:mb-8">
         <StatCard
           title="Net Revenue"
           value={`₹${nd.totalRevenue.toLocaleString("en-IN")}`}
@@ -424,14 +421,14 @@ const AdminDashboard = () => {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 mb-8 sm:mb-10 border-b-2 border-gray-200 pb-8 sm:pb-10">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 min-[380px]:gap-3 sm:gap-4 mb-8 sm:mb-10 border-b-2 border-gray-300 pb-6 sm:pb-8 md:pb-10">
         <MiniCard
           title="Cancelled"
           value={nd.cancelledOrders}
           icon={PackageX}
         />
 
-        <MiniCard title="Refunded" value={nd.refundedOrders} icon={RotateCcw} />
+ 
 
         <MiniCard
           title="Total Orders"
@@ -444,18 +441,18 @@ const AdminDashboard = () => {
         <MiniCard title="Products" value={nd.productsCount} icon={Package} />
       </div>
 
-      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b bg-gray-50">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-2 p-4 sm:p-5 md:p-6 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2">
-            <AlertTriangle size={15} className="text-[#C28E77]" />
+            <AlertTriangle size={15} className="text-[#C28E77] shrink-0" />
 
-            <h2 className="text-base sm:text-lg font-bold text-gray-700">
+            <h2 className="text-sm min-[380px]:text-base sm:text-lg font-bold text-gray-700">
               ⚠️ Low Stock Alerts
             </h2>
           </div>
 
           <span
-            className={`text-[10px] font-bold px-3 py-1 rounded-full ${
+            className={`text-[9px] min-[380px]:text-[10px] font-bold px-2.5 min-[380px]:px-3 py-1 rounded-full whitespace-nowrap ${
               nd.lowStockProducts.length === 0
                 ? "bg-green-100 text-green-600"
                 : "bg-red-100 text-red-600"
@@ -468,29 +465,33 @@ const AdminDashboard = () => {
         </div>
 
         {nd.lowStockProducts.length === 0 ? (
-          <div className="p-10 sm:p-12 text-center text-gray-400 text-sm">
+          <div className="p-8 min-[380px]:p-10 sm:p-12 text-center text-gray-400 text-xs sm:text-sm">
             Inventory levels are healthy. ✅
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
+          <div className="overflow-x-auto -webkit-overflow-scrolling-touch">
+            <table className="w-full text-xs sm:text-sm min-w-[420px]">
+              <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] sm:text-xs border-b-2 border-gray-200">
                 <tr>
-                  <th className="px-4 sm:px-6 py-4 text-left">Product</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left">
+                    Product
+                  </th>
 
-                  <th className="px-4 sm:px-6 py-4 text-right">Stock</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-right">
+                    Stock
+                  </th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-gray-200">
                 {nd.lowStockProducts.map((item) => (
                   <tr key={item._id} className="hover:bg-gray-50 transition">
-                    <td className="px-4 sm:px-6 py-4 font-medium text-gray-700">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-gray-700 border-b border-gray-100">
                       {item.name}
                     </td>
 
-                    <td className="px-4 sm:px-6 py-4 text-right">
-                      <span className="bg-red-50 text-red-600 px-3 py-1 rounded-full font-semibold text-xs sm:text-sm">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-right border-b border-gray-100">
+                      <span className="bg-red-50 text-red-600 px-2.5 min-[380px]:px-3 py-1 rounded-full font-semibold text-[11px] min-[380px]:text-xs sm:text-sm whitespace-nowrap">
                         {item.quantity || item.stock || 0} left
                       </span>
                     </td>

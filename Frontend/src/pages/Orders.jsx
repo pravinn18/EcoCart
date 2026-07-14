@@ -12,8 +12,6 @@ import {
   RotateCcw,
 } from "lucide-react";
 
-
-
 const statusStyle = {
   pending: { bg: "bg-yellow-50", text: "text-yellow-600" },
   paid: { bg: "bg-green-50", text: "text-green-600" },
@@ -44,7 +42,7 @@ const CancelCountdown = ({ createdAt }) => {
   const secs = Math.floor((remaining % 60000) / 1000);
 
   return (
-    <span className="text-[9px] sm:text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0">
+    <span className="text-[8px] sm:text-[9px] lg:text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 px-1.5 sm:px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0">
       <Clock size={9} />
       {mins}:{secs.toString().padStart(2, "0")}
     </span>
@@ -349,21 +347,16 @@ const Orders = () => {
   const [cancelling, setCancelling] = useState(null);
   const [generatingInvoice, setGeneratingInvoice] = useState(null);
 
-  
-
- const fetchOrders = useCallback(async () => {
-   try {
-     const { data } = await axios.get(
-       `/api/orders/myorders`,
-     );
-
-     setOrders(data);
-   } catch (err) {
-     console.error(err);
-   } finally {
-     setLoading(false);
-   }
- }, []);
+  const fetchOrders = useCallback(async () => {
+    try {
+      const { data } = await axios.get(`/api/orders/myorders`);
+      setOrders(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
@@ -378,7 +371,7 @@ const Orders = () => {
     if (!window.confirm("Cancel this order? This cannot be undone.")) return;
     setCancelling(orderId);
     try {
-     await axios.put(`/api/orders/${orderId}/cancel`);
+      await axios.put(`/api/orders/${orderId}/cancel`);
       setOrders((prev) =>
         prev.map((o) =>
           o._id === orderId
@@ -395,11 +388,10 @@ const Orders = () => {
     }
   };
 
-
   const handleInvoice = async (order) => {
     setGeneratingInvoice(order._id);
     try {
-   await generateInvoice(order);
+      await generateInvoice(order);
     } catch (err) {
       console.error("Invoice error:", err);
       alert("Could not generate invoice. Please try again.");
@@ -410,9 +402,9 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center space-y-4 pt-28">
-        <Loader2 className="animate-spin text-[#C28E77]" size={40} />
-        <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
+      <div className="min-h-[80vh] flex flex-col items-center justify-center space-y-3 sm:space-y-4 pt-24 sm:pt-28">
+        <Loader2 className="animate-spin text-[#C28E77] w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10" />
+        <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-gray-400">
           Loading your orders...
         </p>
       </div>
@@ -421,17 +413,24 @@ const Orders = () => {
 
   if (orders.length === 0) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-6 pt-28 px-6 text-center">
-        <div className="bg-gray-50 p-8 rounded-full">
-          <PackageOpen size={40} className="text-gray-200" />
+      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4 sm:space-y-6 pt-24 sm:pt-28 px-4 sm:px-6 text-center">
+        <div className="bg-gray-50 p-6 sm:p-8 rounded-full">
+          <PackageOpen
+            size={32}
+            className="text-gray-200 sm:!w-9 sm:!h-9 lg:!w-10 lg:!h-10"
+          />
         </div>
-        <div className="space-y-2">
-          <h2 className="text-2xl font-semibold text-black">No orders yet</h2>
-          <p className="text-gray-500">Your order history will appear here.</p>
+        <div className="space-y-1.5 sm:space-y-2">
+          <h2 className="text-xl sm:text-2xl font-semibold text-black">
+            No orders yet
+          </h2>
+          <p className="text-sm sm:text-base text-gray-500">
+            Your order history will appear here.
+          </p>
         </div>
         <Link
           to="/"
-          className="bg-[#1A302B] text-white px-8 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-black transition-all"
+          className="bg-[#1A302B] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest hover:bg-black transition-all"
         >
           Start Shopping
         </Link>
@@ -440,22 +439,23 @@ const Orders = () => {
   }
 
   return (
-    <div className="bg-[#F9F9F9] min-h-screen py-10 sm:py-12 pt-28 sm:pt-32">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
-      
-        <div className="mb-8 sm:mb-10">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#1A302B] tracking-tight">
+    <div className="bg-[#F9F9F9] min-h-screen py-6 sm:py-10 lg:py-12 pt-24 sm:pt-28 lg:pt-32">
+      <div className="max-w-full sm:max-w-2xl lg:max-w-3xl 2xl:max-w-4xl mx-auto px-3 sm:px-6">
+        <div className="mb-5 sm:mb-8 lg:mb-10">
+          <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-[#1A302B] tracking-tight">
             My Orders
           </h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-gray-400 text-xs sm:text-sm mt-0.5 sm:mt-1">
             {orders.length} order{orders.length !== 1 ? "s" : ""} placed
           </p>
         </div>
 
-       
         {orders.some(canCancel) && (
-          <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3 mb-5 text-xs font-semibold text-amber-700">
-            <AlertTriangle size={14} className="shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 sm:gap-2.5 bg-amber-50 border border-amber-100 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 mb-4 sm:mb-5 text-[11px] sm:text-xs font-semibold text-amber-700">
+            <AlertTriangle
+              size={13}
+              className="shrink-0 mt-0.5 sm:!w-3.5 sm:!h-3.5"
+            />
             <span>
               You can cancel recent orders within <strong>5 minutes</strong> of
               placing them.
@@ -463,17 +463,17 @@ const Orders = () => {
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {orders.map((order) => {
-             const status = order.isRefunded
-               ? "refunded"
-               : order.isCancelled
-                 ? "cancelled"
-                 : order.isDelivered
-                   ? "delivered"
-                   : order.isPaid
-                     ? "paid"
-                     : "pending";
+            const status = order.isRefunded
+              ? "refunded"
+              : order.isCancelled
+                ? "cancelled"
+                : order.isDelivered
+                  ? "delivered"
+                  : order.isPaid
+                    ? "paid"
+                    : "pending";
 
             const style = statusStyle[status] || statusStyle.pending;
             const eligible = canCancel(order);
@@ -483,24 +483,23 @@ const Orders = () => {
             return (
               <div
                 key={order._id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 hover:shadow-md transition-all"
+                className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm p-3.5 sm:p-4 lg:p-6 hover:shadow-md transition-all"
               >
-            
-                <div className="flex items-start sm:items-center justify-between mb-4 sm:mb-5 pb-3 sm:pb-4 border-b border-gray-50 gap-3">
+                <div className="flex items-start sm:items-center justify-between mb-3 sm:mb-4 lg:mb-5 pb-2.5 sm:pb-3 lg:pb-4 border-b border-gray-50 gap-2.5 sm:gap-3">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                    <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
                       Order ID
                     </p>
-                    <p className="text-xs font-mono text-gray-600 truncate">
+                    <p className="text-[11px] sm:text-xs font-mono text-gray-600 truncate">
                       {order._id}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     {eligible && (
                       <CancelCountdown createdAt={order.createdAt} />
                     )}
                     <span
-                      className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full ${style.bg} ${style.text}`}
+                      className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full ${style.bg} ${style.text}`}
                     >
                       {order.isRefunded
                         ? "Refunded"
@@ -510,8 +509,8 @@ const Orders = () => {
                 </div>
 
                 {order.isRefunded && (
-                  <div className="flex items-center gap-2 bg-purple-50 border border-purple-100 rounded-xl px-3 py-2 mb-4 text-[11px] font-bold text-purple-600 uppercase tracking-wider">
-                    <RotateCcw size={12} />
+                  <div className="flex items-center gap-2 bg-purple-50 border border-purple-100 rounded-lg sm:rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 mb-3 sm:mb-4 text-[10px] sm:text-[11px] font-bold text-purple-600 uppercase tracking-wider">
+                    <RotateCcw size={11} className="sm:!w-3 sm:!h-3" />
                     Refund Processed
                     {order.refundedAt && (
                       <span className="ml-auto font-normal tracking-normal text-purple-400 normal-case">
@@ -528,27 +527,24 @@ const Orders = () => {
                   </div>
                 )}
 
-            
-                <div className="space-y-3 mb-4 sm:mb-5">
+                <div className="space-y-2.5 sm:space-y-3 mb-3 sm:mb-4 lg:mb-5">
                   {order.orderItems.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3">
+                    <div key={i} className="flex items-center gap-2.5 sm:gap-3">
                       <Link
                         to={`/orders/${order._id}`}
-                        className="w-12 h-12 sm:w-14 sm:h-14 bg-[#F9F9F9] rounded-xl overflow-hidden flex items-center justify-center p-1.5 sm:p-2 flex-shrink-0 border border-gray-100 hover:border-[#C28E77] hover:shadow-md transition-all group"
+                        className="w-11 h-11 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-[#F9F9F9] rounded-lg sm:rounded-xl overflow-hidden flex items-center justify-center p-1.5 sm:p-2 flex-shrink-0 border border-gray-100 hover:border-[#C28E77] hover:shadow-md transition-all group"
                       >
                         <img
-                          src={
-                            item.image
-                          }
+                          src={item.image}
                           alt={item.name}
                           className="object-contain h-full w-full group-hover:scale-110 transition-transform duration-200"
                         />
                       </Link>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-semibold text-[#1A302B] truncate">
+                        <p className="text-[11px] sm:text-xs lg:text-sm font-semibold text-[#1A302B] truncate">
                           {item.name}
                         </p>
-                        <p className="text-[10px] sm:text-[11px] text-gray-400">
+                        <p className="text-[9px] sm:text-[10px] lg:text-[11px] text-gray-400">
                           Qty: {item.qty} · ₹
                           {item.price?.toLocaleString("en-IN")}
                         </p>
@@ -557,32 +553,31 @@ const Orders = () => {
                   ))}
                 </div>
 
-                <div className="pt-3 sm:pt-4 border-t border-gray-50">
-                  <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-                   
+                <div className="pt-2.5 sm:pt-3 lg:pt-4 border-t border-gray-50">
+                  <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 mb-2.5 sm:mb-3">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
+                      <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
                         Total
                       </p>
-                      <p className="text-base sm:text-lg font-bold text-[#1A302B]">
+                      <p className="text-sm sm:text-base lg:text-lg font-bold text-[#1A302B]">
                         ₹{order.totalPrice?.toLocaleString("en-IN")}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
+                      <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
                         Payment
                       </p>
-                      <p className="text-xs sm:text-sm font-semibold text-gray-600">
+                      <p className="text-[11px] sm:text-xs lg:text-sm font-semibold text-gray-600">
                         {order.paymentMethod || "COD"}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
+                      <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
                         Placed On
                       </p>
-                      <p className="text-xs sm:text-sm text-gray-600">
+                      <p className="text-[11px] sm:text-xs lg:text-sm text-gray-600">
                         {new Date(order.createdAt).toLocaleDateString("en-IN", {
                           day: "numeric",
                           month: "short",
@@ -593,12 +588,11 @@ const Orders = () => {
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                   
                     {eligible && !order.isCancelled && (
                       <button
                         onClick={() => handleCancel(order._id)}
                         disabled={isCancelling}
-                        className="flex items-center gap-1.5 bg-red-50 text-red-500 hover:bg-red-100 border border-red-100 px-3 sm:px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="flex items-center gap-1.5 bg-red-50 text-red-500 hover:bg-red-100 border border-red-100 px-2.5 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] lg:text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {isCancelling ? (
                           <Loader2 size={11} className="animate-spin" />
@@ -611,12 +605,11 @@ const Orders = () => {
 
                     {!eligible && <div />}
 
-                    <div className="flex items-center gap-3 ml-auto">
-                 
+                    <div className="flex items-center gap-2 sm:gap-3 ml-auto">
                       <button
                         onClick={() => handleInvoice(order)}
                         disabled={isGenerating}
-                        className="flex items-center gap-1.5 bg-[#1A302B]/5 text-[#1A302B] hover:bg-[#1A302B]/10 border border-[#1A302B]/10 px-3 sm:px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="flex items-center gap-1.5 bg-[#1A302B]/5 text-[#1A302B] hover:bg-[#1A302B]/10 border border-[#1A302B]/10 px-2.5 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] lg:text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {isGenerating ? (
                           <Loader2 size={11} className="animate-spin" />
@@ -628,7 +621,7 @@ const Orders = () => {
 
                       <Link
                         to={`/orders/${order._id}`}
-                        className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#C28E77] hover:text-[#1A302B] transition-colors"
+                        className="flex items-center gap-1 text-[9px] sm:text-[10px] lg:text-[11px] font-bold uppercase tracking-widest text-[#C28E77] hover:text-[#1A302B] transition-colors"
                       >
                         Details <ChevronRight size={13} />
                       </Link>

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaShoppingCart, FaHeart, FaSearch, FaUser } from "react-icons/fa";
 import {
   Menu,
@@ -6,9 +6,9 @@ import {
   Package,
   LogOut,
   ChevronRight,
-  FileText,
   Home,
   Crown,
+  Settings,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useCart } from "../context/CartContext";
@@ -24,6 +24,7 @@ const Header = () => {
   const menuRef = useRef(null);
   const searchRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { cartItems } = useCart();
   const { wishlist } = useWishlist();
@@ -85,9 +86,28 @@ const Header = () => {
     navigate(`/product/${product._id}`);
   };
 
+  
+  const isActive = (path) =>
+    path === "/"
+      ? location.pathname === "/"
+      : location.pathname.startsWith(path);
+
+  const bottomNavItems = [
+    { to: "/", label: "Home", icon: Home },
+    { to: "/orders", label: "Orders", icon: Package },
+    { to: "/plus", label: "Plus", icon: Crown },
+    userInfo?.isAdmin
+      ? { to: "/admin", label: "Admin", icon: Settings }
+      : { to: "/cart", label: "Cart", icon: FaShoppingCart, badge: itemCount },
+    { to: "/profile", label: "Profile", icon: FaUser },
+  ];
+
   return (
     <>
-      <header className="fixed top-0 left-0 w-full z-[9999] bg-white text-gray-800 border-b border-gray-200 px-8 py-5 font-sans shadow-sm tracking-wide">
+      <header
+        className="fixed top-0 left-0 w-full z-[9999] bg-white text-gray-800 border-b border-gray-200 px-4 sm:px-8 py-3 sm:py-5 font-sans shadow-sm tracking-wide"
+        style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
+      >
         
         <div className="hidden sm:flex items-center justify-between">
           <div className="flex items-center gap-12">
@@ -199,7 +219,6 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-7 text-lg relative text-gray-600">
-           
             <Link
               to="/wishlist"
               className="relative hover:text-[#b87e5b] transition-colors duration-300"
@@ -233,7 +252,6 @@ const Header = () => {
                 <div className="absolute top-12 right-0 w-52 bg-white border border-gray-100 shadow-xl py-2 z-50 rounded-2xl">
                   {userInfo ? (
                     <div className="flex flex-col">
-                      
                       <div className="px-5 py-3 border-b border-gray-50">
                         <span className="text-[11px] font-bold text-[#1A302B] uppercase tracking-widest block truncate">
                           {userInfo.name}
@@ -284,41 +302,44 @@ const Header = () => {
           </div>
         </div>
 
-        <div className="flex sm:hidden items-center justify-between">
-          <Link to="/">
+        <div className="flex sm:hidden items-center justify-between gap-2">
+          <Link to="/" className="flex-shrink-0">
             <img
               src="./Logo.png"
               alt="EcoCart"
-              className="h-10 object-contain"
+              className="h-8 xs:h-9 object-contain"
             />
           </Link>
-          <div className="flex items-center gap-3 flex-1 justify-end">
-            <div className="relative flex-1 max-w-[180px]" ref={searchRef}>
+          <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
+            <div className="relative flex-1 min-w-0" ref={searchRef}>
               <form
                 onSubmit={handleSearch}
-                className="flex items-center border-b border-gray-300 pb-1"
+                className="flex items-center border border-gray-200 rounded-full bg-gray-50 px-3 py-2"
               >
                 <FaSearch className="text-gray-400 text-xs flex-shrink-0" />
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="bg-transparent outline-none ml-2 w-full text-sm placeholder-gray-400 text-gray-800"
+                  className="bg-transparent outline-none ml-2 w-full min-w-0 text-base text-gray-800 placeholder-gray-400"
                   value={search}
                   onChange={(e) => {
                     setSearch(e.target.value);
                     setShowSuggestions(true);
                   }}
+                  onFocus={() =>
+                    suggestions.length > 0 && setShowSuggestions(true)
+                  }
                 />
               </form>
               {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 shadow-xl rounded-xl overflow-hidden z-50 max-h-60 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 shadow-xl rounded-xl overflow-hidden z-50 max-h-[60vh] overflow-y-auto">
                   {suggestions.map((product) => (
                     <button
                       key={product._id}
                       onMouseDown={(e) => handleSuggestionClick(e, product)}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-gray-50 transition-colors text-left"
+                      className="w-full flex items-center gap-2 px-3 py-3 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left"
                     >
-                      <div className="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center p-1 flex-shrink-0">
+                      <div className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center p-1 flex-shrink-0">
                         <img
                           src={
                             product.image?.startsWith("http")
@@ -329,7 +350,7 @@ const Header = () => {
                           className="object-contain h-full w-full"
                         />
                       </div>
-                      <p className="text-xs font-semibold text-gray-700 truncate">
+                      <p className="text-sm font-semibold text-gray-700 truncate">
                         {product.name}
                       </p>
                     </button>
@@ -338,7 +359,7 @@ const Header = () => {
               )}
             </div>
             <button
-              className="text-gray-600 hover:text-[#b87e5b] transition-colors p-1"
+              className="text-gray-600 hover:text-[#b87e5b] transition-colors p-2 flex-shrink-0"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -347,7 +368,7 @@ const Header = () => {
         </div>
 
         {isMobileMenuOpen && (
-          <div className="sm:hidden bg-white border-t border-gray-100 shadow-lg">
+          <div className="sm:hidden bg-white border-t border-gray-100 shadow-lg absolute left-0 right-0 top-full max-h-[85vh] overflow-y-auto">
             <div className="px-4 py-4 space-y-1">
               {userInfo && (
                 <div className="flex items-center gap-3 px-3 py-3 mb-3 bg-gray-50 rounded-xl">
@@ -382,7 +403,6 @@ const Header = () => {
                   badgeColor: "bg-[#b87e5b]",
                 },
                 { to: "/profile", label: "Profile", icon: FaUser },
-                { to: "/terms", label: "Terms & Conditions", icon: FileText },
               ].map(({ to, label, icon: Icon, badge, badgeColor }) => (
                 <Link
                   key={to}
@@ -443,6 +463,47 @@ const Header = () => {
           </div>
         )}
       </header>
+
+  
+      <nav
+        className="sm:hidden fixed bottom-0 left-0 w-full z-[9999] bg-white border-t border-gray-100 flex items-stretch justify-around shadow-[0_-4px_16px_rgba(0,0,0,0.06)]"
+        style={{ paddingBottom: "max(6px, env(safe-area-inset-bottom))" }}
+      >
+        {bottomNavItems.map((item) => {
+          const active = isActive(item.to);
+          const ItemIcon = item.icon;
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="flex-1 flex flex-col items-center justify-center gap-1 py-2 min-w-0"
+            >
+              <span className="relative">
+                <ItemIcon
+                  size={20}
+                  className={active ? "text-[#C28E77]" : "text-[#1A302B]/50"}
+                  strokeWidth={active ? 2.4 : 1.8}
+                />
+                {item.badge > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-[#C28E77] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {item.badge}
+                  </span>
+                )}
+              </span>
+              <span
+                className={`text-[10px] font-medium ${
+                  active ? "text-[#C28E77] font-semibold" : "text-[#1A302B]/50"
+                }`}
+              >
+                {item.label}
+              </span>
+              {active && (
+                <span className="w-4 h-0.5 rounded-full bg-[#C28E77]" />
+              )}
+            </Link>
+          );
+        })}
+      </nav>
     </>
   );
 };

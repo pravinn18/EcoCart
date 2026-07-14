@@ -25,7 +25,6 @@ import {
   BadgePercent,
 } from "lucide-react";
 
-
 const STATUS_CONFIG = {
   pending: { bg: "bg-yellow-50", text: "text-yellow-600", label: "Pending" },
   paid: { bg: "bg-green-50", text: "text-green-700", label: "Paid" },
@@ -66,7 +65,6 @@ const getOrderStatus = (order) => {
   return "pending";
 };
 
-
 const ActionBtn = ({
   onClick,
   disabled,
@@ -78,7 +76,7 @@ const ActionBtn = ({
   <button
     onClick={onClick}
     disabled={disabled}
-    className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed border ${colorClass}`}
+    className={`flex items-center gap-1.5 px-2.5 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] lg:text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed border ${colorClass}`}
   >
     {loading ? (
       <Loader2 size={11} className="animate-spin" />
@@ -88,7 +86,6 @@ const ActionBtn = ({
     <span className="hidden xs:inline sm:inline">{label}</span>
   </button>
 );
-
 
 const OfferAnalysisPanel = ({ orderItems }) => {
   const [expandedItem, setExpandedItem] = useState(null);
@@ -109,9 +106,9 @@ const OfferAnalysisPanel = ({ orderItems }) => {
 
   if (itemsWithOffers.length === 0) {
     return (
-      <div className="bg-gray-50 rounded-xl border border-dashed border-gray-200 px-4 py-3 flex items-center gap-2">
+      <div className="bg-gray-50 rounded-lg sm:rounded-xl border border-dashed border-gray-200 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2">
         <BadgePercent size={13} className="text-gray-300 shrink-0" />
-        <p className="text-[10px] text-gray-400 font-medium">
+        <p className="text-[9px] sm:text-[10px] text-gray-400 font-medium">
           No offers were applied on this order.
         </p>
       </div>
@@ -119,36 +116,35 @@ const OfferAnalysisPanel = ({ orderItems }) => {
   }
 
   return (
-    <div className="space-y-3">
-    
-      <div className="grid grid-cols-3 gap-2">
-        <div className="bg-[#FBF3EF] border border-[#F0E0D8] rounded-xl p-2.5 text-center">
-          <p className="text-[8px] font-bold uppercase tracking-widest text-[#C28E77] mb-1">
+    <div className="space-y-2.5 sm:space-y-3">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+        <div className="bg-[#FBF3EF] border border-[#F0E0D8] rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center">
+          <p className="text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-[#C28E77] mb-0.5 sm:mb-1">
             Total Saved
           </p>
-          <p className="text-sm font-extrabold text-[#C28E77]">
+          <p className="text-xs sm:text-sm font-extrabold text-[#C28E77]">
             ₹{totalSaved.toLocaleString("en-IN")}
           </p>
         </div>
-        <div className="bg-blue-50 border border-blue-100 rounded-xl p-2.5 text-center">
-          <p className="text-[8px] font-bold uppercase tracking-widest text-blue-400 mb-1">
+        <div className="bg-blue-50 border border-blue-100 rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center">
+          <p className="text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-blue-400 mb-0.5 sm:mb-1">
             Items w/ Offers
           </p>
-          <p className="text-sm font-extrabold text-blue-600">
+          <p className="text-xs sm:text-sm font-extrabold text-blue-600">
             {itemsWithOffers.length}/{orderItems?.length || 0}
           </p>
         </div>
-        <div className="bg-purple-50 border border-purple-100 rounded-xl p-2.5 text-center">
-          <p className="text-[8px] font-bold uppercase tracking-widest text-purple-400 mb-1">
+        <div className="bg-purple-50 border border-purple-100 rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center">
+          <p className="text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-purple-400 mb-0.5 sm:mb-1">
             Offer Types
           </p>
-          <p className="text-sm font-extrabold text-purple-600">
+          <p className="text-xs sm:text-sm font-extrabold text-purple-600">
             {allOfferTypes.length}
           </p>
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5 sm:space-y-2">
         {orderItems?.map((item, i) => {
           const offer = item.offerBreakdown;
           const isExpanded = expandedItem === i;
@@ -156,13 +152,13 @@ const OfferAnalysisPanel = ({ orderItems }) => {
           return (
             <div
               key={i}
-              className="bg-white border border-gray-100 rounded-xl overflow-hidden"
+              className="bg-white border border-gray-100 rounded-lg sm:rounded-xl overflow-hidden"
             >
               <button
                 onClick={() => setExpandedItem(isExpanded ? null : i)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50/70 transition text-left"
+                className="w-full flex items-center gap-2.5 sm:gap-3 px-2.5 sm:px-3 py-2 sm:py-2.5 hover:bg-gray-50/70 transition text-left"
               >
-                <div className="w-7 h-7 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center p-1 shrink-0">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center p-1 shrink-0">
                   <img
                     src={item.image}
                     alt={item.name}
@@ -170,23 +166,23 @@ const OfferAnalysisPanel = ({ orderItems }) => {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-semibold text-gray-700 truncate">
+                  <p className="text-[10px] sm:text-[11px] font-semibold text-gray-700 truncate">
                     {item.name}
                   </p>
                   {offer ? (
                     <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                      <span className="text-[8px] font-bold uppercase tracking-widest text-[#C28E77] bg-[#FBF3EF] px-1.5 py-0.5 rounded-full border border-[#F0E0D8]">
+                      <span className="text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-[#C28E77] bg-[#FBF3EF] px-1.5 py-0.5 rounded-full border border-[#F0E0D8]">
                         {offer.offerType || "Offer"}
                       </span>
-                      <span className="text-[8px] font-bold text-emerald-600">
+                      <span className="text-[7px] sm:text-[8px] font-bold text-emerald-600">
                         {offer.totalDiscountPercent}% off
                       </span>
-                      <span className="text-[8px] text-gray-400">
+                      <span className="text-[7px] sm:text-[8px] text-gray-400">
                         · saved ₹{Number(offer.saved || 0) * item.qty}
                       </span>
                     </div>
                   ) : (
-                    <p className="text-[9px] text-gray-400 mt-0.5">
+                    <p className="text-[8px] sm:text-[9px] text-gray-400 mt-0.5">
                       No offer applied
                     </p>
                   )}
@@ -203,29 +199,29 @@ const OfferAnalysisPanel = ({ orderItems }) => {
               </button>
 
               {offer && isExpanded && (
-                <div className="border-t border-gray-50 bg-gray-50/40 px-3 py-3 space-y-3">
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-white rounded-lg p-2 text-center border border-gray-100">
-                      <p className="text-[8px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
+                <div className="border-t border-gray-50 bg-gray-50/40 px-2.5 sm:px-3 py-2.5 sm:py-3 space-y-2.5 sm:space-y-3">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                    <div className="bg-white rounded-lg p-1.5 sm:p-2 text-center border border-gray-100">
+                      <p className="text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">
                         MRP
                       </p>
-                      <p className="text-xs font-bold text-gray-400 line-through">
+                      <p className="text-[11px] sm:text-xs font-bold text-gray-400 line-through">
                         ₹{offer.mrp}
                       </p>
                     </div>
-                    <div className="bg-emerald-50 rounded-lg p-2 text-center border border-emerald-100">
-                      <p className="text-[8px] font-bold uppercase tracking-widest text-emerald-400 mb-0.5">
+                    <div className="bg-emerald-50 rounded-lg p-1.5 sm:p-2 text-center border border-emerald-100">
+                      <p className="text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-emerald-400 mb-0.5">
                         Paid
                       </p>
-                      <p className="text-xs font-bold text-emerald-600">
+                      <p className="text-[11px] sm:text-xs font-bold text-emerald-600">
                         ₹{offer.paid}
                       </p>
                     </div>
-                    <div className="bg-[#FBF3EF] rounded-lg p-2 text-center border border-[#F0E0D8]">
-                      <p className="text-[8px] font-bold uppercase tracking-widest text-[#C28E77] mb-0.5">
+                    <div className="bg-[#FBF3EF] rounded-lg p-1.5 sm:p-2 text-center border border-[#F0E0D8]">
+                      <p className="text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-[#C28E77] mb-0.5">
                         Per Item
                       </p>
-                      <p className="text-xs font-bold text-[#C28E77]">
+                      <p className="text-[11px] sm:text-xs font-bold text-[#C28E77]">
                         −₹{offer.saved}
                       </p>
                     </div>
@@ -233,9 +229,9 @@ const OfferAnalysisPanel = ({ orderItems }) => {
 
                   {offer.discountStack?.length > 0 && (
                     <div>
-                      <div className="flex items-center gap-1.5 mb-2">
+                      <div className="flex items-center gap-1.5 mb-1.5 sm:mb-2">
                         <Layers size={10} className="text-gray-400" />
-                        <p className="text-[8px] font-bold uppercase tracking-widest text-gray-400">
+                        <p className="text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-gray-400">
                           Discount Layers Applied
                         </p>
                       </div>
@@ -243,19 +239,19 @@ const OfferAnalysisPanel = ({ orderItems }) => {
                         {offer.discountStack.map((d, di) => (
                           <div
                             key={di}
-                            className="flex items-center justify-between bg-white rounded-lg px-2.5 py-1.5 border border-gray-100"
+                            className="flex items-center justify-between bg-white rounded-lg px-2 sm:px-2.5 py-1.5 border border-gray-100"
                           >
                             <div className="min-w-0">
-                              <p className="text-[10px] font-bold text-gray-700 truncate">
+                              <p className="text-[9px] sm:text-[10px] font-bold text-gray-700 truncate">
                                 {d.label}
                               </p>
                               {d.detail && (
-                                <p className="text-[8px] text-gray-400">
+                                <p className="text-[7px] sm:text-[8px] text-gray-400">
                                   {d.detail}
                                 </p>
                               )}
                             </div>
-                            <span className="text-[10px] font-bold text-emerald-600 shrink-0 ml-2 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-600 shrink-0 ml-2 bg-emerald-50 px-1.5 py-0.5 rounded-full">
                               +{d.percent}%
                             </span>
                           </div>
@@ -265,23 +261,23 @@ const OfferAnalysisPanel = ({ orderItems }) => {
                   )}
 
                   {offer.totalDiscountPercent != null && (
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="flex items-center justify-between pt-1.5 sm:pt-2 border-t border-gray-100">
                       <div className="flex items-center gap-1.5">
                         <TrendingDown size={10} className="text-gray-400" />
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                        <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-gray-400">
                           Total Discount
                         </span>
                       </div>
-                      <span className="text-[10px] font-extrabold text-white bg-[#1A302B] px-2.5 py-1 rounded-full">
+                      <span className="text-[9px] sm:text-[10px] font-extrabold text-white bg-[#1A302B] px-2 sm:px-2.5 py-1 rounded-full">
                         {offer.totalDiscountPercent}% OFF
                       </span>
                     </div>
                   )}
 
                   {item.qty > 1 && (
-                    <div className="flex items-center gap-1.5 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1.5">
+                    <div className="flex items-center gap-1.5 bg-blue-50 border border-blue-100 rounded-lg px-2 sm:px-2.5 py-1.5">
                       <Tag size={9} className="text-blue-400 shrink-0" />
-                      <p className="text-[9px] font-medium text-blue-600">
+                      <p className="text-[8px] sm:text-[9px] font-medium text-blue-600">
                         Qty {item.qty} × ₹{offer.saved} saved ={" "}
                         <span className="font-bold">
                           ₹{Number(offer.saved) * item.qty} total saved
@@ -303,13 +299,11 @@ const OfferAnalysisPanel = ({ orderItems }) => {
 const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
   const [expanded, setExpanded] = useState(false);
   const [acting, setActing] = useState(null);
-  
   const [showOfferAnalysis, setShowOfferAnalysis] = useState(true);
 
   const status = getOrderStatus(order);
   const sc = STATUS_CONFIG[status];
 
- 
   const offerCount =
     order.orderItems?.filter((item) => item.offerBreakdown)?.length || 0;
 
@@ -320,32 +314,32 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
+    <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
       <div
-        className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 sm:p-5 cursor-pointer hover:bg-gray-50/70 transition"
+        className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 p-3.5 sm:p-4 lg:p-5 cursor-pointer hover:bg-gray-50/70 transition"
         onClick={() => setExpanded((p) => !p)}
       >
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#F3F4F6] rounded-xl flex items-center justify-center shrink-0">
+        <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 bg-[#F3F4F6] rounded-lg sm:rounded-xl flex items-center justify-center shrink-0">
             <Package size={15} className="text-[#C28E77]" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-mono text-gray-400 truncate">
+            <p className="text-[9px] sm:text-[10px] font-mono text-gray-400 truncate">
               #{order._id}
             </p>
-            <p className="text-sm font-bold text-[#1A302B] truncate">
+            <p className="text-[13px] sm:text-sm font-bold text-[#1A302B] truncate">
               {order.shippingAddress?.fullName || "Unknown Customer"}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3">
-            <span className="text-sm font-bold text-gray-700">
+            <span className="text-[13px] sm:text-sm font-bold text-gray-700">
               ₹{order.totalPrice?.toLocaleString("en-IN")}
             </span>
             <span
-              className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-2.5 sm:px-3 py-1 rounded-full ${sc.bg} ${sc.text}`}
+              className={`text-[8px] sm:text-[9px] lg:text-[10px] font-bold uppercase tracking-widest px-2 sm:px-2.5 lg:px-3 py-0.5 sm:py-1 rounded-full ${sc.bg} ${sc.text}`}
             >
               {sc.label}
             </span>
@@ -358,7 +352,7 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
             }}
             disabled={invoiceLoadingId === order._id}
             title="Download Invoice"
-            className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:text-[#1A302B] hover:border-[#C28E77] bg-white shadow-sm transition disabled:opacity-50"
+            className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:text-[#1A302B] hover:border-[#C28E77] bg-white shadow-sm transition disabled:opacity-50"
           >
             {invoiceLoadingId === order._id ? (
               <Loader2 size={11} className="animate-spin" />
@@ -376,38 +370,38 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
 
       {expanded && (
         <div className="border-t border-gray-100 bg-gray-50/40">
-          <div className="p-4 sm:p-5 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
+          <div className="p-3.5 sm:p-4 lg:p-5 space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+              <div className="bg-white rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <CreditCard size={11} className="text-blue-500" />
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                  <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-gray-400">
                     Payment
                   </p>
                 </div>
-                <p className="text-sm font-bold text-gray-700">
+                <p className="text-[13px] sm:text-sm font-bold text-gray-700">
                   {order.isRefunded
                     ? "Refunded"
                     : order.isPaid
                       ? "Paid"
                       : "Unpaid"}
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-[11px] sm:text-xs text-gray-400">
                   {order.paymentMethod || "COD"}
                 </p>
               </div>
 
-              <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm sm:col-span-2">
+              <div className="bg-white rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-gray-100 shadow-sm sm:col-span-2">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <MapPin size={11} className="text-orange-500" />
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                  <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-gray-400">
                     Shipping
                   </p>
                 </div>
-                <p className="text-sm font-bold text-gray-700">
+                <p className="text-[13px] sm:text-sm font-bold text-gray-700">
                   {order.shippingAddress?.fullName}
                 </p>
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-gray-400 leading-relaxed">
                   {order.shippingAddress?.addressLine1}
                   {order.shippingAddress?.addressLine2
                     ? `, ${order.shippingAddress.addressLine2}`
@@ -415,21 +409,24 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
                   {`, ${order.shippingAddress?.city}, ${order.shippingAddress?.state} — ${order.shippingAddress?.pincode}`}
                 </p>
                 {order.shippingAddress?.phone && (
-                  <p className="text-xs font-bold text-[#C28E77] mt-1">
+                  <p className="text-[11px] sm:text-xs font-bold text-[#C28E77] mt-1">
                     📞 {order.shippingAddress.phone}
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 px-3 py-2 border-b border-gray-50">
+            <div className="bg-white rounded-lg sm:rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-gray-400 px-2.5 sm:px-3 py-1.5 sm:py-2 border-b border-gray-50">
                 Items ({order.orderItems?.length})
               </p>
               <div className="divide-y divide-gray-50">
                 {order.orderItems?.map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 px-3 py-2.5">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center p-1 shrink-0">
+                  <div
+                    key={i}
+                    className="flex items-center gap-2.5 sm:gap-3 px-2.5 sm:px-3 py-2 sm:py-2.5"
+                  >
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center p-1 shrink-0">
                       <img
                         src={item.image}
                         alt={item.name}
@@ -437,14 +434,14 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-semibold text-gray-700 truncate">
+                      <p className="text-[11px] sm:text-xs lg:text-sm font-semibold text-gray-700 truncate">
                         {item.name}
                       </p>
-                      <p className="text-[10px] text-gray-400">
+                      <p className="text-[9px] sm:text-[10px] text-gray-400">
                         Qty {item.qty} × ₹{item.price?.toLocaleString("en-IN")}
                       </p>
                     </div>
-                    <p className="text-sm font-bold text-gray-700 shrink-0">
+                    <p className="text-[13px] sm:text-sm font-bold text-gray-700 shrink-0">
                       ₹{(item.price * item.qty).toLocaleString("en-IN")}
                     </p>
                   </div>
@@ -452,22 +449,22 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-lg sm:rounded-xl border border-gray-100 shadow-sm overflow-hidden">
               <button
                 onClick={() => setShowOfferAnalysis((p) => !p)}
-                className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-gray-50/70 transition border-b border-gray-50"
+                className="w-full flex items-center justify-between px-2.5 sm:px-3 py-2 sm:py-2.5 hover:bg-gray-50/70 transition border-b border-gray-50"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-5 rounded-md bg-[#1A302B] flex items-center justify-center">
                     <BadgePercent size={11} className="text-[#C28E77]" />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-gray-500">
                       Offer Analysis
                     </p>
 
                     {offerCount > 0 && (
-                      <span className="text-[8px] font-bold text-[#C28E77] bg-[#FBF3EF] border border-[#F0E0D8] px-1.5 py-0.5 rounded-full">
+                      <span className="text-[7px] sm:text-[8px] font-bold text-[#C28E77] bg-[#FBF3EF] border border-[#F0E0D8] px-1.5 py-0.5 rounded-full">
                         {offerCount} item{offerCount !== 1 ? "s" : ""} w/ offers
                       </span>
                     )}
@@ -483,13 +480,13 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
               </button>
 
               {showOfferAnalysis && (
-                <div className="p-3">
+                <div className="p-2.5 sm:p-3">
                   <OfferAnalysisPanel orderItems={order.orderItems} />
                 </div>
               )}
             </div>
 
-            <p className="text-[10px] text-gray-400 flex items-center gap-1.5">
+            <p className="text-[9px] sm:text-[10px] text-gray-400 flex items-center gap-1.5">
               <Clock size={11} />
               Placed:{" "}
               {new Date(order.createdAt).toLocaleDateString("en-IN", {
@@ -559,18 +556,18 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
                 />
               </div>
             ) : order.isCancelled ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-50 text-red-500 border border-red-100">
+              <div className="space-y-2.5 sm:space-y-3">
+                <div className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-red-50 text-red-500 border border-red-100">
                   <XCircle size={13} />
                   Order Cancelled
                 </div>
 
                 {order.isRefunded ? (
-                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100">
+                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100">
                     <RotateCcw size={13} />
                     Refunded
                     {order.refundedAt && (
-                      <span className="ml-1 font-normal tracking-normal text-[10px] text-purple-400">
+                      <span className="ml-1 font-normal tracking-normal text-[9px] sm:text-[10px] text-purple-400">
                         on{" "}
                         {new Date(order.refundedAt).toLocaleDateString(
                           "en-IN",
@@ -605,7 +602,7 @@ const OrderRow = ({ order, onAction, onInvoice, invoiceLoadingId }) => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-100">
+              <div className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-100">
                 <CheckCircle2 size={13} />
                 Order Delivered
               </div>
@@ -629,9 +626,7 @@ const AdminOrderControl = () => {
     try {
       setLoading(true);
       setError("");
-      const { data } = await axios.get(
-        `/api/orders/admin/allorders`,
-      );
+      const { data } = await axios.get(`/api/orders/admin/allorders`);
       const sorted = [...data].sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
       );
@@ -650,28 +645,15 @@ const AdminOrderControl = () => {
   const handleAction = useCallback(
     async (orderId, actionType, payload = {}) => {
       try {
-      
-
         if (actionType === "deliver") {
-        await axios.put(
-          `/api/orders/${orderId}/deliver`,
-          {},
-        );
+          await axios.put(`/api/orders/${orderId}/deliver`, {});
         } else if (actionType === "status") {
-         await axios.put(
-           `/api/orders/${orderId}/status`,
-           payload,
-         );
+          await axios.put(`/api/orders/${orderId}/status`, payload);
         } else if (actionType === "cancel") {
-         await axios.put(
-           `/api/orders/${orderId}/cancel`,
-           {},
-         );
+          await axios.put(`/api/orders/${orderId}/cancel`, {});
         } else if (actionType === "refund") {
-         await axios.put(
-           `/api/orders/${orderId}/refund`,
-           {},
-         ); }
+          await axios.put(`/api/orders/${orderId}/refund`, {});
+        }
 
         await fetchOrders();
       } catch (err) {
@@ -927,9 +909,9 @@ const AdminOrderControl = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <Loader2 className="animate-spin text-[#C28E77]" size={36} />
-        <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
+      <div className="flex flex-col items-center justify-center py-14 sm:py-20 gap-3 sm:gap-4">
+        <Loader2 className="animate-spin text-[#C28E77] w-8 h-8 sm:w-9 sm:h-9" />
+        <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-gray-400">
           Loading orders...
         </p>
       </div>
@@ -938,14 +920,16 @@ const AdminOrderControl = () => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-5 text-center">
-        <div className="bg-red-50 p-6 rounded-full">
-          <XCircle size={36} className="text-red-300" />
+      <div className="flex flex-col items-center justify-center py-14 sm:py-20 gap-4 sm:gap-5 text-center px-4">
+        <div className="bg-red-50 p-5 sm:p-6 rounded-full">
+          <XCircle size={30} className="text-red-300 sm:!w-9 sm:!h-9" />
         </div>
-        <p className="text-red-500 font-semibold text-sm">{error}</p>
+        <p className="text-red-500 font-semibold text-[13px] sm:text-sm">
+          {error}
+        </p>
         <button
           onClick={fetchOrders}
-          className="bg-[#1A302B] text-white px-6 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-black transition"
+          className="bg-[#1A302B] text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest hover:bg-black transition"
         >
           Try Again
         </button>
@@ -954,24 +938,25 @@ const AdminOrderControl = () => {
   }
 
   return (
-    <div className="mt-6">
-   
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div className="mt-4 sm:mt-6 px-1 sm:px-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Order Control</h2>
-          <p className="text-gray-400 text-sm mt-0.5">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
+            Order Control
+          </h2>
+          <p className="text-gray-400 text-xs sm:text-sm mt-0.5">
             {orders.length} total order{orders.length !== 1 ? "s" : ""}
           </p>
         </div>
         <button
           onClick={fetchOrders}
-          className="self-start sm:self-auto flex items-center gap-2 bg-white border border-gray-200 text-gray-600 px-4 py-2.5 rounded-xl shadow-sm hover:shadow-md transition text-sm font-semibold"
+          className="self-start sm:self-auto flex items-center gap-2 bg-white border border-gray-200 text-gray-600 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-sm hover:shadow-md transition text-xs sm:text-sm font-semibold"
         >
           <RefreshCw size={13} /> Refresh
         </button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
+      <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 mb-4 sm:mb-5">
         <div className="relative flex-1">
           <Search
             size={13}
@@ -982,7 +967,7 @@ const AdminOrderControl = () => {
             placeholder="Search by order ID or customer name…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C28E77] focus:border-transparent"
+            className="w-full pl-9 pr-4 py-2 sm:py-2.5 rounded-xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C28E77] focus:border-transparent"
           />
         </div>
         <div className="relative shrink-0">
@@ -993,7 +978,7 @@ const AdminOrderControl = () => {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C28E77] appearance-none cursor-pointer w-full sm:w-auto"
+            className="pl-9 pr-4 py-2 sm:py-2.5 rounded-xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C28E77] appearance-none cursor-pointer w-full sm:w-auto"
           >
             <option value="all">All ({orders.length})</option>
             <option value="pending">
@@ -1026,21 +1011,23 @@ const AdminOrderControl = () => {
       </div>
 
       {counts.paid > 0 && filter === "all" && (
-        <div className="flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 mb-5 text-xs font-bold text-amber-700">
+        <div className="flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 mb-4 sm:mb-5 text-[11px] sm:text-xs font-bold text-amber-700">
           <AlertTriangle size={13} className="shrink-0" />
           {counts.paid} paid order{counts.paid !== 1 ? "s" : ""} awaiting
           processing
         </div>
       )}
 
-    
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-          <Package size={32} className="text-gray-200 mx-auto mb-3" />
-          <p className="text-gray-400 text-sm">No orders found.</p>
+        <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-8 sm:p-12 text-center">
+          <Package
+            size={28}
+            className="text-gray-200 mx-auto mb-2.5 sm:mb-3 sm:!w-8 sm:!h-8"
+          />
+          <p className="text-gray-400 text-xs sm:text-sm">No orders found.</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5 sm:space-y-3">
           {filtered.map((order) => (
             <OrderRow
               key={order._id}

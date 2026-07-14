@@ -84,7 +84,7 @@ const ProductDetails = () => {
       try {
         setLoading(true);
         setError("");
-        const { data } = await axios.get(`$/api/products/${id}`);
+        const { data } = await axios.get(`/api/products/${id}`);
         setProduct(data);
         if (Number(data.quantity || data.stock || 0) > 0) setQty(1);
         const { data: all } = await axios.get(`/api/products`);

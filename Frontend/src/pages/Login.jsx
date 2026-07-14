@@ -2,105 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import axiosInstance from "../config/axios";
 import { useAuth } from "../context/AuthContext";
 
-/* ---------- Shared bits (reduces repeated markup) ---------- */
 
-const BotanicalArt = () => (
-  <svg
-    viewBox="0 0 400 500"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="absolute inset-0 w-full h-full opacity-20 pointer-events-none select-none"
-  >
-    <path
-      d="M200 480 C200 480 195 350 200 200 C205 100 200 40 200 40"
-      stroke="#C28E77"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-    <path
-      d="M200 300 C160 280 100 240 80 180 C120 190 170 220 200 300Z"
-      fill="#2d5a4e"
-      stroke="#C28E77"
-      strokeWidth="0.8"
-    />
-    <path
-      d="M200 300 C160 280 100 240 80 180"
-      stroke="#C28E77"
-      strokeWidth="0.6"
-      strokeDasharray="2 4"
-    />
-    <path
-      d="M200 260 C240 235 310 200 330 140 C290 155 240 185 200 260Z"
-      fill="#2d5a4e"
-      stroke="#C28E77"
-      strokeWidth="0.8"
-    />
-    <path
-      d="M200 260 C240 235 310 200 330 140"
-      stroke="#C28E77"
-      strokeWidth="0.6"
-      strokeDasharray="2 4"
-    />
-    <path
-      d="M200 380 C170 358 130 330 110 285 C145 295 178 320 200 380Z"
-      fill="#1e4035"
-      stroke="#C28E77"
-      strokeWidth="0.6"
-    />
-    <path
-      d="M200 200 C228 175 270 148 298 108 C264 120 225 148 200 200Z"
-      fill="#1e4035"
-      stroke="#C28E77"
-      strokeWidth="0.6"
-    />
-    <path
-      d="M200 130 C215 112 240 96 258 72 C236 82 210 100 200 130Z"
-      fill="#2d5a4e"
-      stroke="#C28E77"
-      strokeWidth="0.5"
-    />
-    <path
-      d="M200 300 C175 268 138 250 108 235"
-      stroke="#C28E77"
-      strokeWidth="0.4"
-      opacity="0.6"
-    />
-    <path
-      d="M200 260 C225 232 258 218 285 200"
-      stroke="#C28E77"
-      strokeWidth="0.4"
-      opacity="0.6"
-    />
-    <circle cx="85" cy="170" r="2.5" fill="#C28E77" opacity="0.5" />
-    <circle cx="335" cy="132" r="2" fill="#C28E77" opacity="0.4" />
-    <circle cx="108" cy="278" r="1.5" fill="#C28E77" opacity="0.35" />
-    <circle cx="302" cy="95" r="2" fill="#C28E77" opacity="0.45" />
-    <circle cx="150" cy="430" r="1.5" fill="#C28E77" opacity="0.3" />
-    <path
-      d="M20 460 C40 420 80 390 100 350"
-      stroke="#C28E77"
-      strokeWidth="0.8"
-      opacity="0.4"
-      strokeLinecap="round"
-    />
-    <path
-      d="M20 460 C50 450 90 455 110 440"
-      stroke="#C28E77"
-      strokeWidth="0.6"
-      opacity="0.35"
-      strokeLinecap="round"
-    />
-    <path
-      d="M370 80 C355 110 330 130 310 160"
-      stroke="#C28E77"
-      strokeWidth="0.8"
-      opacity="0.4"
-      strokeLinecap="round"
-    />
-  </svg>
-);
 
-// One icon component instead of 6+ duplicated inline <svg> blocks.
 const ICON_PATHS = {
   mail: (
     <>
@@ -142,6 +45,9 @@ const ICON_PATHS = {
   spinner: (
     <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
   ),
+  leaf: (
+    <path d="M12 2C12 2 4 7.5 4 14a8 8 0 0016 0C20 7.5 12 2 12 2zM12 22V8M12 14c0 0-3-2-5-6M12 11c0 0 3-2 4-5" />
+  ),
 };
 
 const Icon = ({ name, className = "w-4 h-4", spin = false }) => (
@@ -162,7 +68,7 @@ const EyeIcon = ({ open }) => (
     fill="none"
     stroke="currentColor"
     strokeWidth="1.8"
-    className="w-4 h-4"
+    className="w-5 h-5"
   >
     {open ? (
       <>
@@ -179,7 +85,6 @@ const EyeIcon = ({ open }) => (
   </svg>
 );
 
-// Button that handles its own loading/idle label + spinner (was duplicated 5x)
 const SubmitButton = ({ loading, loadingText, children }) => (
   <button type="submit" className="btn-primary" disabled={loading}>
     {loading ? (
@@ -197,7 +102,7 @@ const Alert = ({ type, children }) =>
     <div className={`alert alert-${type === "error" ? "err" : "ok"}`}>
       <Icon
         name={type === "error" ? "alertCircle" : "checkCircle"}
-        className="w-4 h-4 shrink-0 mt-0.5"
+        className="w-4 h-4 shrink-0"
       />
       {children}
     </div>
@@ -210,12 +115,6 @@ const StepBar = ({ active }) => (
     />
     <div className={`step-seg ${active === 2 ? "active" : ""}`} />
   </div>
-);
-
-const StepLabel = ({ step, text }) => (
-  <p className="step-label">
-    Step {step} — {text}
-  </p>
 );
 
 const OtpInput = ({ value, onChange }) => {
@@ -245,7 +144,7 @@ const OtpInput = ({ value, onChange }) => {
   };
 
   return (
-    <div className="flex gap-2 justify-center" onPaste={handlePaste}>
+    <div className="otp-row" onPaste={handlePaste}>
       {digits.map((d, i) => (
         <input
           key={i}
@@ -263,7 +162,6 @@ const OtpInput = ({ value, onChange }) => {
   );
 };
 
-// OTP field + resend timer row (was duplicated for reg + forgot-password flows)
 const OtpBlock = ({ value, onChange, timer, timerStr, onResend, loading }) => (
   <div className="input-group" style={{ marginBottom: 18 }}>
     <label className="input-label">Verification Code</label>
@@ -315,7 +213,7 @@ const InputField = ({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           required={required}
-          className={`luxury-input ${icon ? "pl-10" : "pl-4"}`}
+          className={`luxury-input ${icon ? "pl-icon" : ""}`}
         />
         {isPassword && (
           <button
@@ -331,7 +229,6 @@ const InputField = ({
   );
 };
 
-/* ---------- Main component (all handlers/logic unchanged) ---------- */
 
 export default function Login() {
   const { login } = useAuth();
@@ -430,9 +327,7 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      await axiosInstance.post(`/api/auth/send-otp`, {
-        email: rEmail,
-      });
+      await axiosInstance.post(`/api/auth/send-otp`, { email: rEmail });
       setMsg(`Code sent to ${rEmail}`);
       setTimer(120);
       setOtp("");
@@ -449,9 +344,7 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      await axiosInstance.post(`/api/auth/send-otp`, {
-        email: rEmail,
-      });
+      await axiosInstance.post(`/api/auth/send-otp`, { email: rEmail });
       setMsg("New OTP sent!");
       setTimer(120);
       setOtp("");
@@ -486,9 +379,7 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      await axiosInstance.post(`/api/auth/send-otp`, {
-        email: fpEmail,
-      });
+      await axiosInstance.post(`/api/auth/send-otp`, { email: fpEmail });
       setMsg("New OTP sent!");
       setFpTimer(120);
       setFpOtp("");
@@ -547,15 +438,12 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post(
-        `/api/auth/verify-otp`,
-        {
-          name: rName,
-          email: rEmail,
-          password: rPassword,
-          otp: otp.trim(),
-        },
-      );
+      const { data } = await axiosInstance.post(`/api/auth/verify-otp`, {
+        name: rName,
+        email: rEmail,
+        password: rPassword,
+        otp: otp.trim(),
+      });
       login(data);
       localStorage.setItem("userInfo", JSON.stringify(data));
       setMsg("Account created! Redirecting...");
@@ -575,7 +463,7 @@ export default function Login() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -584,152 +472,90 @@ export default function Login() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #080f0c;
+          background: #0c1512;
           font-family: 'DM Sans', sans-serif;
-          padding: clamp(12px, 4vw, 24px);
-          position: relative;
-          overflow: hidden;
+          padding: clamp(16px, 4vw, 24px);
         }
 
-        .auth-root::before,
-        .auth-root::after {
-          content: '';
-          position: fixed;
-          width: min(600px, 70vw);
-          height: min(600px, 70vw);
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 0;
-        }
-        .auth-root::before { top: -20%; left: -10%; background: radial-gradient(circle, rgba(26,48,43,0.7) 0%, transparent 70%); }
-        .auth-root::after  { bottom: -15%; right: -10%; background: radial-gradient(circle, rgba(194,142,119,0.12) 0%, transparent 70%); }
-
-        .grain {
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: 1;
-          opacity: 0.03;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-          background-size: 200px;
-        }
-
-        /* Card scales fluidly from small phones up through large/TV screens */
         .auth-card {
-          position: relative;
-          z-index: 10;
           width: 100%;
-          max-width: min(900px, 92vw);
-          min-height: clamp(480px, 60vh, 560px);
+          max-width: min(880px, 94vw);
+          min-height: clamp(500px, 62vh, 560px);
           display: flex;
-          border-radius: clamp(16px, 2vw, 28px);
+          border-radius: clamp(18px, 2vw, 26px);
           overflow: hidden;
-          box-shadow: 0 0 0 1px rgba(194,142,119,0.12), 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(26,48,43,0.3);
-          animation: cardReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+          box-shadow: 0 0 0 1px rgba(194,142,119,0.12), 0 30px 70px rgba(0,0,0,0.55);
+          animation: cardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-
-        @keyframes cardReveal {
-          from { opacity: 0; transform: translateY(24px) scale(0.97); }
-          to   { opacity: 1; transform: translateY(0)   scale(1); }
-        }
+        @keyframes cardReveal { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
         .deco-panel {
-          width: 42%;
-          background: linear-gradient(155deg, #0f2219 0%, #1A302B 40%, #0d1d17 100%);
-          position: relative;
+          width: 40%;
+          background: linear-gradient(160deg, #16281f 0%, #1A302B 55%, #0d1d17 100%);
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: clamp(24px, 4vw, 48px) clamp(20px, 3vw, 36px);
-          overflow: hidden;
+          text-align: center;
+          padding: clamp(28px, 4vw, 44px);
           flex-shrink: 0;
         }
-        .deco-panel::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(ellipse at 30% 20%, rgba(194,142,119,0.08) 0%, transparent 60%),
-                      radial-gradient(ellipse at 70% 80%, rgba(45,90,78,0.15) 0%, transparent 60%);
-        }
-        .deco-panel::after {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, #C28E77, transparent);
-          opacity: 0.5;
-        }
-
-        .deco-content { position: relative; z-index: 2; text-align: center; }
 
         .brand-mark {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 52px;
-          height: 52px;
-          border-radius: 14px;
-          background: linear-gradient(135deg, rgba(194,142,119,0.2), rgba(194,142,119,0.05));
-          border: 1px solid rgba(194,142,119,0.3);
-          margin-bottom: 16px;
-          backdrop-filter: blur(8px);
+          width: 56px;
+          height: 56px;
+          border-radius: 16px;
+          background: rgba(194,142,119,0.12);
+          border: 1px solid rgba(194,142,119,0.35);
+          margin-bottom: 18px;
+          color: #C28E77;
         }
 
         .brand-name {
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: clamp(1.5rem, 2vw + 1rem, 2rem);
-          font-weight: 600;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.7rem, 2vw + 1rem, 2.1rem);
+          font-weight: 700;
           color: #fff;
-          letter-spacing: 0.25em;
+          letter-spacing: 0.22em;
           text-transform: uppercase;
-          line-height: 1;
-          margin-bottom: 6px;
+          margin-bottom: 8px;
         }
 
-        .brand-tagline {
-          font-size: 11px;
-          color: rgba(194,142,119,0.7);
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
-          margin-bottom: clamp(20px, 3vw, 36px);
-        }
+        .brand-tagline { font-size: 11px; color: rgba(194,142,119,0.75); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 32px; }
 
         .deco-heading {
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: clamp(1.5rem, 1.5vw + 1rem, 1.9rem);
-          font-weight: 300;
-          font-style: italic;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.5rem, 1.5vw + 1rem, 1.8rem);
+          font-weight: 600;
           color: #fff;
-          line-height: 1.2;
-          margin-bottom: 10px;
+          margin-bottom: 22px;
         }
-
-        .deco-sub { font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 28px; line-height: 1.6; }
 
         .deco-btn {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          padding: 11px 28px;
-          border: 1px solid rgba(194,142,119,0.5);
+          padding: 12px 26px;
+          border: 1px solid rgba(194,142,119,0.55);
           border-radius: 50px;
           color: #C28E77;
-          font-size: 11px;
+          font-size: 12px;
           font-weight: 600;
-          letter-spacing: 0.15em;
+          letter-spacing: 0.1em;
           text-transform: uppercase;
           background: transparent;
           cursor: pointer;
           transition: all 0.25s ease;
-          font-family: 'DM Sans', sans-serif;
-          min-height: 44px;
+          min-height: 46px;
         }
-        .deco-btn:hover { background: rgba(194,142,119,0.1); border-color: #C28E77; color: #fff; }
+        .deco-btn:hover { background: rgba(194,142,119,0.12); color: #fff; }
 
-        .step-pills { display: flex; gap: 6px; margin-top: 28px; justify-content: center; }
-        .step-pill { width: 28px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.15); transition: all 0.3s ease; }
-        .step-pill.active { background: #C28E77; width: 44px; }
+        .step-pills { display: flex; gap: 6px; margin-top: 26px; }
+        .step-pill { width: 26px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.18); transition: all 0.3s ease; }
+        .step-pill.active { background: #C28E77; width: 42px; }
 
         .form-panel-wrap {
           flex: 1;
@@ -738,127 +564,91 @@ export default function Login() {
           display: flex;
           flex-direction: column;
           justify-content: center;
-          padding: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 44px);
-          position: relative;
-          overflow: hidden;
-        }
-        .form-panel-wrap::before {
-          content: '';
-          position: absolute;
-          top: -80px; right: -80px;
-          width: 250px; height: 250px;
-          background: radial-gradient(circle, rgba(194,142,119,0.06) 0%, transparent 70%);
-          border-radius: 50%;
-          pointer-events: none;
+          padding: clamp(30px, 4vw, 48px);
         }
 
-        .form-panel { position: relative; z-index: 2; }
-        .form-enter { animation: formIn 0.35s cubic-bezier(0.16,1,0.3,1) both; }
-        .form-exit  { animation: formOut 0.28s ease both; }
-        @keyframes formIn  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes formOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-16px); } }
+        .form-panel { position: relative; }
+        .form-enter { animation: formIn 0.32s cubic-bezier(0.16,1,0.3,1) both; }
+        .form-exit  { animation: formOut 0.24s ease both; }
+        @keyframes formIn  { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes formOut { from { opacity: 1; } to { opacity: 0; transform: translateX(-12px); } }
 
-        .step-bar { display: flex; gap: 6px; margin-bottom: 24px; }
-        .step-seg { height: 3px; border-radius: 2px; flex: 1; background: #e2d9cf; transition: background 0.3s ease; }
+        .step-bar { display: flex; gap: 6px; margin-bottom: 22px; }
+        .step-seg { height: 3px; border-radius: 2px; flex: 1; background: #e2d9cf; }
         .step-seg.done { background: #1A302B; }
         .step-seg.active { background: linear-gradient(90deg, #1A302B, #C28E77); }
 
-        .step-label {
-          font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-          color: #C28E77; margin-bottom: 4px;
-        }
-
         .form-title {
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: clamp(1.7rem, 1.5vw + 1.2rem, 2.2rem);
-          font-weight: 600;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.9rem, 1.5vw + 1.3rem, 2.3rem);
+          font-weight: 700;
           color: #0f1e18;
-          line-height: 1.1;
-          margin-bottom: 4px;
+          margin-bottom: 22px;
         }
-        .form-sub { font-size: 12px; color: #9a8d83; margin-bottom: 24px; letter-spacing: 0.02em; }
 
-        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-        .input-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #7a6e66; }
+        .input-group { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+        .input-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #7a6e66; }
         .input-wrap { position: relative; }
-        .input-icon, .input-eye {
-          position: absolute; top: 50%; transform: translateY(-50%);
-          color: #b8a99c; display: flex; align-items: center;
-        }
-        .input-icon { left: 12px; }
-        .input-eye { right: 8px; background: none; border: none; cursor: pointer; padding: 8px; transition: color 0.2s; }
-        .input-eye:hover { color: #1A302B; }
+        .input-icon, .input-eye { position: absolute; top: 50%; transform: translateY(-50%); color: #b8a99c; display: flex; align-items: center; }
+        .input-icon { left: 14px; }
+        .input-eye { right: 10px; background: none; border: none; cursor: pointer; padding: 8px; }
 
         .luxury-input {
           width: 100%;
-          padding: 13px 40px 13px 12px;
+          padding: 15px 14px;
           background: #fff;
           border: 1.5px solid #e8dfd5;
           border-radius: 12px;
-          font-size: 16px; /* prevents iOS auto-zoom on focus */
+          font-size: 16px;
           color: #1a1a1a;
           font-family: 'DM Sans', sans-serif;
-          transition: all 0.2s ease;
           outline: none;
         }
+        .luxury-input.pl-icon { padding-left: 42px; }
         .luxury-input::placeholder { color: #c5b8ae; }
-        .luxury-input:focus { border-color: #C28E77; box-shadow: 0 0 0 3px rgba(194,142,119,0.12); }
+        .luxury-input:focus { border-color: #C28E77; box-shadow: 0 0 0 3px rgba(194,142,119,0.14); }
 
         .btn-primary {
           width: 100%;
-          padding: 14px;
-          min-height: 48px;
+          padding: 15px;
+          min-height: 50px;
           background: linear-gradient(135deg, #1A302B 0%, #2d5a4e 100%);
           color: #fff;
           border: none;
           border-radius: 12px;
           font-size: 13px;
-          font-weight: 600;
-          font-family: 'DM Sans', sans-serif;
+          font-weight: 700;
           letter-spacing: 0.08em;
           cursor: pointer;
-          transition: box-shadow 0.25s ease, transform 0.25s ease;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
           margin-top: 6px;
-          position: relative;
-          overflow: hidden;
+          transition: box-shadow 0.25s ease, transform 0.25s ease;
         }
-        .btn-primary:hover { box-shadow: 0 8px 24px rgba(26,48,43,0.35); transform: translateY(-1px); }
-        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:hover { box-shadow: 0 8px 22px rgba(26,48,43,0.35); transform: translateY(-1px); }
         .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
-        .btn-primary::after {
-          content: '';
-          position: absolute;
-          top: -50%; left: -75%;
-          width: 50%; height: 200%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-          transform: skewX(-20deg);
-          animation: shimmer 3s infinite;
-        }
-        @keyframes shimmer { 0% { left: -75%; } 100% { left: 150%; } }
 
         .alert {
-          padding: 11px 14px;
+          padding: 12px 14px;
           border-radius: 10px;
-          font-size: 12px;
+          font-size: 13px;
           font-weight: 500;
           margin-bottom: 16px;
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           gap: 8px;
-          line-height: 1.5;
         }
         .alert-err { background: #fff5f5; border: 1px solid #fecaca; color: #dc2626; }
         .alert-ok  { background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; }
 
+        .otp-row { display: flex; gap: 8px; justify-content: center; }
         .otp-box {
-          width: clamp(38px, 8vw, 44px);
-          height: clamp(46px, 10vw, 52px);
+          width: 46px;
+          height: 54px;
           text-align: center;
-          font-size: clamp(18px, 3vw, 20px);
+          font-size: 20px;
           font-weight: 700;
           font-family: 'Cormorant Garamond', serif;
           background: #fff;
@@ -866,70 +656,65 @@ export default function Login() {
           border-radius: 12px;
           color: #1A302B;
           outline: none;
-          transition: all 0.2s ease;
           caret-color: #C28E77;
         }
         .otp-box:focus { border-color: #C28E77; box-shadow: 0 0 0 3px rgba(194,142,119,0.15); }
 
-        .resend-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; }
-        .resend-text { font-size: 11px; color: #9a8d83; }
+        .resend-row { display: flex; justify-content: center; margin-top: 10px; }
+        .resend-text { font-size: 12px; color: #9a8d83; }
 
         .text-link {
-          background: none; border: none; font-family: 'DM Sans', sans-serif;
-          font-size: 12px; color: #C28E77; font-weight: 600; cursor: pointer;
-          text-decoration: underline; text-underline-offset: 2px; transition: color 0.2s; padding: 4px;
+          background: none; border: none; font-size: 13px; color: #C28E77; font-weight: 700; cursor: pointer;
+          text-decoration: underline; text-underline-offset: 2px; padding: 4px;
         }
-        .text-link:hover { color: #1A302B; }
         .text-link:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .foot-note { font-size: 12px; color: #9a8d83; text-align: center; }
+        .foot-note { font-size: 13px; color: #9a8d83; text-align: center; margin-top: 16px; }
         .divider { border: none; border-top: 1px solid #ede5dc; margin: 18px 0; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
         .spin { animation: spin 0.8s linear infinite; }
 
-        .copyright {
-          position: relative; z-index: 10; margin-top: 20px; font-size: 10px;
-          color: rgba(255,255,255,0.2); letter-spacing: 0.15em; text-transform: uppercase; text-align: center;
-        }
-
-        /* ---------- Responsive: tablets and below stack the card vertically ---------- */
+        /* ---------- Mobile: full-screen, centered, input-first ---------- */
         @media (max-width: 760px) {
-          .auth-card { flex-direction: column !important; max-width: min(420px, 94vw); min-height: auto; }
-          .deco-panel { width: 100%; min-height: 190px; padding: 24px 20px 20px; }
-          .step-pills { margin-top: 20px; }
+          .auth-root { padding: 0; align-items: stretch; justify-content: stretch; }
+          .auth-card {
+            flex-direction: column !important;
+            max-width: 100%;
+            width: 100%;
+            min-height: 100dvh;
+            border-radius: 0;
+            box-shadow: none;
+            justify-content: center;
+          }
+          /* deco panel collapses to a slim brand strip so inputs get the space */
+          .deco-panel { width: 100%; padding: 28px 24px 20px; flex-shrink: 0; }
+          .brand-mark { width: 52px; height: 52px; margin-bottom: 10px; }
+          .brand-name { font-size: 1.5rem; margin-bottom: 4px; }
+          .brand-tagline { margin-bottom: 0; }
+          .deco-heading, .step-pills { display: none; }
+          .deco-btn { margin-top: 12px; padding: 10px 22px; font-size: 12px; min-height: 40px; }
+
+          .form-panel-wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 28px 22px 40px; }
+          .form-title { font-size: 2rem; margin-bottom: 22px; }
+          .input-label { font-size: 12px; }
+          .luxury-input { padding: 18px 14px; font-size: 17px; border-radius: 14px; }
+          .luxury-input.pl-icon { padding-left: 46px; }
+          .input-icon svg, .input-eye svg { width: 21px; height: 21px; }
+          .input-group { margin-bottom: 18px; }
+          .btn-primary { padding: 18px; min-height: 56px; font-size: 14.5px; border-radius: 14px; }
+          .otp-box { width: 15vw; max-width: 52px; height: 60px; font-size: 22px; border-radius: 14px; }
+          .otp-row { gap: 7px; }
+          .foot-note, .resend-text, .text-link { font-size: 14.5px; }
+          .step-bar { margin-bottom: 20px; }
         }
 
-        /* ---------- Small phones ---------- */
-        @media (max-width: 380px) {
-          .otp-box { width: 34px; height: 42px; font-size: 16px; }
-          .deco-heading { font-size: 1.35rem; }
-          .brand-name { font-size: 1.3rem; letter-spacing: 0.18em; }
-        }
-
-        /* ---------- Short viewports (landscape phones) ---------- */
-        @media (max-height: 500px) and (orientation: landscape) {
-          .auth-root { align-items: flex-start; padding-top: 16px; }
-          .auth-card { flex-direction: row !important; min-height: auto; }
-          .deco-panel { min-height: auto; padding: 20px; }
-          .form-panel-wrap { padding: 20px 24px; }
-          .copyright { display: none; }
-        }
-
-        /* ---------- Large screens / TVs: keep the card human-scaled, don't stretch it ---------- */
-        @media (min-width: 1440px) {
-          .auth-card { max-width: 960px; }
-        }
-
-        /* Respect reduced-motion preference */
         @media (prefers-reduced-motion: reduce) {
-          .auth-card, .form-enter, .form-exit, .btn-primary::after, .spin { animation: none !important; }
+          .auth-card, .form-enter, .form-exit, .spin { animation: none !important; }
         }
       `}</style>
 
       <div className="auth-root">
-        <div className="grain" />
-
         <div
           className="auth-card"
           style={{
@@ -938,97 +723,53 @@ export default function Login() {
           }}
         >
           <div className="deco-panel">
-            <BotanicalArt />
-            <div className="deco-content">
-              <div className="brand-mark">
-                <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
-                  <path
-                    d="M12 2C12 2 4 7.5 4 14a8 8 0 0016 0C20 7.5 12 2 12 2z"
-                    fill="#C28E77"
-                    opacity="0.9"
-                  />
-                  <path
-                    d="M12 22V8"
-                    stroke="#1A302B"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M12 14c0 0-3-2-5-6"
-                    stroke="#1A302B"
-                    strokeWidth="1"
-                    strokeLinecap="round"
-                    opacity="0.6"
-                  />
-                  <path
-                    d="M12 11c0 0 3-2 4-5"
-                    stroke="#1A302B"
-                    strokeWidth="1"
-                    strokeLinecap="round"
-                    opacity="0.6"
-                  />
-                </svg>
-              </div>
-              <div className="brand-name">Ecocart</div>
-              <div className="brand-tagline">Natural · Sustainable</div>
-
-              {mode === "login" && (
-                <>
-                  <p className="deco-heading">New here?</p>
-                  <p className="deco-sub">
-                    Join thousands of conscious shoppers.
-                    <br />
-                    Create your account in minutes.
-                  </p>
-                  <button
-                    className="deco-btn"
-                    onClick={() => switchMode("reg-email", "left")}
-                  >
-                    Create Account →
-                  </button>
-                </>
-              )}
-              {mode === "reg-email" && (
-                <>
-                  <p className="deco-heading">Welcome back.</p>
-                  <p className="deco-sub">
-                    Already have an account?
-                    <br />
-                    Sign in to continue.
-                  </p>
-                  <button
-                    className="deco-btn"
-                    onClick={() => switchMode("login", "right")}
-                  >
-                    ← Sign In
-                  </button>
-                  <div className="step-pills">
-                    <div className="step-pill active" />
-                    <div className="step-pill" />
-                  </div>
-                </>
-              )}
-              {mode === "reg-form" && (
-                <>
-                  <p className="deco-heading">Almost there!</p>
-                  <p className="deco-sub">
-                    Check your inbox for the
-                    <br />
-                    verification code.
-                  </p>
-                  <button
-                    className="deco-btn"
-                    onClick={() => switchMode("reg-email", "left")}
-                  >
-                    ← Change Email
-                  </button>
-                  <div className="step-pills">
-                    <div className="step-pill done" />
-                    <div className="step-pill active" />
-                  </div>
-                </>
-              )}
+            <div className="brand-mark">
+              <Icon name="leaf" className="w-7 h-7" />
             </div>
+            <div className="brand-name">Ecocart</div>
+            <div className="brand-tagline">Natural · Sustainable</div>
+
+            {mode === "login" && (
+              <>
+                <p className="deco-heading">New here?</p>
+                <button
+                  className="deco-btn"
+                  onClick={() => switchMode("reg-email", "left")}
+                >
+                  Create Account →
+                </button>
+              </>
+            )}
+            {mode === "reg-email" && (
+              <>
+                <p className="deco-heading">Welcome back.</p>
+                <button
+                  className="deco-btn"
+                  onClick={() => switchMode("login", "right")}
+                >
+                  ← Sign In
+                </button>
+                <div className="step-pills">
+                  <div className="step-pill active" />
+                  <div className="step-pill" />
+                </div>
+              </>
+            )}
+            {mode === "reg-form" && (
+              <>
+                <p className="deco-heading">Almost there!</p>
+                <button
+                  className="deco-btn"
+                  onClick={() => switchMode("reg-email", "left")}
+                >
+                  ← Change Email
+                </button>
+                <div className="step-pills">
+                  <div className="step-pill done" />
+                  <div className="step-pill active" />
+                </div>
+              </>
+            )}
           </div>
 
           <div className="form-panel-wrap">
@@ -1039,12 +780,9 @@ export default function Login() {
               {mode === "login" && (
                 <>
                   <p className="form-title">Sign In</p>
-                  <p className="form-sub">
-                    Enter your credentials to access your account
-                  </p>
                   <form onSubmit={handleLogin}>
                     <InputField
-                      label="Email Address"
+                      label="Email"
                       type="email"
                       value={lEmail}
                       onChange={setLEmail}
@@ -1057,7 +795,7 @@ export default function Login() {
                       type="password"
                       value={lPassword}
                       onChange={setLPassword}
-                      placeholder="Enter your password"
+                      placeholder="••••••••"
                       icon="lock"
                       required
                     />
@@ -1072,7 +810,7 @@ export default function Login() {
                       className="text-link"
                       onClick={() => switchMode("fp-email", "right")}
                     >
-                      Reset it here
+                      Reset it
                     </button>
                   </p>
                 </>
@@ -1081,21 +819,14 @@ export default function Login() {
               {mode === "reg-email" && (
                 <>
                   <StepBar active={1} />
-                  <StepLabel step={1} text="Verify Email" />
-                  <p className="form-title">
-                    What's your
-                    <br />
-                    email?
-                  </p>
-                  <p className="form-sub">
-                    We'll send a one-time code to confirm it's you.
-                  </p>
+                  <p className="form-title">Your Email</p>
                   <form onSubmit={handleSendOtp}>
                     <InputField
+                      label="Email"
                       type="email"
                       value={rEmail}
                       onChange={setREmail}
-                      placeholder="your@email.com"
+                      placeholder="you@example.com"
                       icon="mail"
                       required
                     />
@@ -1119,17 +850,10 @@ export default function Login() {
               {mode === "reg-form" && (
                 <>
                   <StepBar active={2} />
-                  <StepLabel step={2} text="Complete Registration" />
                   <p className="form-title">
-                    Almost
-                    <br />
-                    there!
+                    Code sent to{" "}
+                    <span style={{ color: "#C28E77" }}>{rEmail}</span>
                   </p>
-                  <p className="form-sub">
-                    OTP sent to{" "}
-                    <strong style={{ color: "#1A302B" }}>{rEmail}</strong>
-                  </p>
-
                   <form onSubmit={handleRegister}>
                     <OtpBlock
                       value={otp}
@@ -1143,7 +867,7 @@ export default function Login() {
                       label="Full Name"
                       value={rName}
                       onChange={setRName}
-                      placeholder="Your full name"
+                      placeholder="Jane Doe"
                       icon="user"
                       required
                     />
@@ -1169,7 +893,7 @@ export default function Login() {
                       loading={loading}
                       loadingText="Creating Account…"
                     >
-                      Verify & Create Account →
+                      Create Account →
                     </SubmitButton>
                   </form>
                 </>
@@ -1178,18 +902,10 @@ export default function Login() {
               {mode === "fp-email" && (
                 <>
                   <StepBar active={1} />
-                  <StepLabel step={1} text="Verify Email" />
-                  <p className="form-title">
-                    Forgot your
-                    <br />
-                    password?
-                  </p>
-                  <p className="form-sub">
-                    Enter your email to receive a reset code.
-                  </p>
+                  <p className="form-title">Reset Password</p>
                   <form onSubmit={handleFpSendOtp}>
                     <InputField
-                      label="Email Address"
+                      label="Email"
                       type="email"
                       value={fpEmail}
                       onChange={setFpEmail}
@@ -1217,15 +933,9 @@ export default function Login() {
               {mode === "fp-reset" && (
                 <>
                   <StepBar active={2} />
-                  <StepLabel step={2} text="Reset Password" />
                   <p className="form-title">
-                    New
-                    <br />
-                    password
-                  </p>
-                  <p className="form-sub">
-                    OTP sent to{" "}
-                    <strong style={{ color: "#1A302B" }}>{fpEmail}</strong>
+                    Code sent to{" "}
+                    <span style={{ color: "#C28E77" }}>{fpEmail}</span>
                   </p>
                   <form onSubmit={handleFpReset}>
                     <OtpBlock
@@ -1263,10 +973,6 @@ export default function Login() {
             </div>
           </div>
         </div>
-
-        <p className="copyright">
-          © {new Date().getFullYear()} Ecocart · Secure &amp; Encrypted
-        </p>
       </div>
     </>
   );
